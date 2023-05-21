@@ -11,7 +11,7 @@ public class ClientContact{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "clientId")
     private Client client;
 
