@@ -8,4 +8,8 @@ public interface ClientContactService{
     List<ClientContact> findAll();
 
     ClientContact save(ClientContact clientContact);
+
+    void delete(ClientContact contact);
+
+    void updateClientContact(ClientContact contact);
 }

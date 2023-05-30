@@ -8,4 +8,8 @@ public interface ReviewService{
     List<Review> findAll();
 
     Review save(Review review);
+
+    void delete(Review review);
+
+    void updateReview(Review review);
 }

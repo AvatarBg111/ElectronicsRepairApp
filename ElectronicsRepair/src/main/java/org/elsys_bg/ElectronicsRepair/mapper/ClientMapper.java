@@ -2,6 +2,7 @@ package org.elsys_bg.ElectronicsRepair.mapper;
 
 import org.elsys_bg.ElectronicsRepair.controller.resources.ClientResource;
 import org.elsys_bg.ElectronicsRepair.entity.Client;
+import org.elsys_bg.ElectronicsRepair.miscellaneous.ClientProjection;
 import org.mapstruct.factory.Mappers;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mapper;
@@ -23,4 +24,6 @@ public interface ClientMapper{
     ClientResource toClientResource(Client client);
 
     List<ClientResource> toClientResources(List<Client> clients);
+
+    Client fromClientProjection(ClientProjection clientProjection);
 }

@@ -8,4 +8,7 @@ public interface WorkerPostService{
     List<WorkerPost> findAll();
 
     WorkerPost save(WorkerPost workerPost);
+
+    void delete(WorkerPost post);
+    void updateWorkerPost(WorkerPost post);
 }

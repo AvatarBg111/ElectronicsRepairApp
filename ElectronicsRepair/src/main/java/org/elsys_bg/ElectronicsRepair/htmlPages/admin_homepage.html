@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="OOP webapp admin homepage" content="OOP">
+    <meta name="keywords" content="HTML, CSS, JavaScript, Java">
+    <meta name="OOP" content="OOP">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Homepage</title>
+
+    <script>
+      var workerPostFormId = "worker-post-form";
+      var workerFormId = "worker-form";
+      var deviceTypeFormId = "device-type-form";
+      var deviceManufacturerFormId = "device-manufacturer-form";
+      var workerPostForm;
+      var workerForm;
+      var deviceTypeForm;
+      var deviceManufacturerForm;
+
+      function initialize(){
+        workerPostForm = document.getElementById(workerPostFormId);
+        workerForm = document.getElementById(workerFormId);
+        deviceTypeForm = document.getElementById(deviceTypeFormId);
+        deviceManufacturerForm = document.getElementById(deviceManufacturerFormId);
+
+        loadWorkerPosts();
+        loadDeviceTypes();
+
+        workerPostForm.addEventListener("submit", function(event){
+          event.preventDefault();
+
+          var workerPost = document.getElementById("workerPost").value;
+
+          if(checkStringForSQLInjection(workerPost)){
+            window.alert("ERR: Worker post string contains sql injections");
+          }else{
+            const xhr = new XMLHttpRequest();
+
+            var data = {
+              workerPost:workerPost
+            };
+            var postData = JSON.stringify(data);
+
+            xhr.open('POST', '/api/v1/admins/add_worker_post', true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function(){
+              if(this.readyState == 4 && this.status == 200){
+                switch(this.responseText){
+                  case "WORKER_POST_ADDED":
+                    loadWorkerPosts();
+                    window.alert("Worker post \"" + workerPost + "\" added to system");
+                    break;
+                  default:
+                    console.log("ERROR RECEIVED: " + this.responseText);
+                    window.alert(this.responseText);
+                }
+              }
+            };
+
+            xhr.send(postData);
+          }
+        });
+
+        workerForm.addEventListener("submit", function(event){
+          event.preventDefault();
+
+          var workerName = document.getElementById("workerName").value;
+          var workerPassword = document.getElementById("workerPassword").value;
+          var workerPost = document.getElementById("worker-post").value;
+
+          if(checkStringForSQLInjection(workerPost)){
+            window.alert("ERR: Worker post string contains sql injections");
+          }else if(checkForSQLInjections(workerName, workerPassword)){
+            window.alert("ERR: Worker credentials contain sql injections");
+          }else{
+            const xhr = new XMLHttpRequest();
+
+            var workerCredentials = {
+              workerName:workerName,
+              workerPassword:workerPassword,
+              workerPost:workerPost
+            };
+            var workerData = JSON.stringify(workerCredentials);
+
+            xhr.open('POST', '/api/v1/admins/add_worker', true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function(){
+              if(this.readyState == 4 && this.status == 200){
+                switch(this.responseText){
+                  case "WORKER_ADDED":
+                    window.alert("Worker \"" + workerName + "\" added to system");
+                    break;
+                  default:
+                    console.log("ERROR RECEIVED: " + this.responseText);
+                    window.alert(this.responseText);
+                }
+              }
+            };
+
+            xhr.send(workerData);
+          }
+        });
+
+        deviceTypeForm.addEventListener("submit", function(event){
+          event.preventDefault();
+
+          var deviceType = document.getElementById("deviceType").value;
+
+          if(checkStringForSQLInjection(deviceType)){
+            window.alert("ERR: Device type string contains sql injections");
+          }else{
+            const xhr = new XMLHttpRequest();
+
+            var data = {
+              deviceType:deviceType
+            };
+            var postData = JSON.stringify(data);
+
+            xhr.open('POST', '/api/v1/admins/add_device_type', true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function(){
+              if(this.readyState == 4 && this.status == 200){
+                switch(this.responseText){
+                  case "DEVICE_TYPE_ADDED":
+                    loadDeviceTypes();
+                    window.alert("Device type \"" + deviceType + "\" added to system");
+                    break;
+                  default:
+                    console.log("ERROR RECEIVED: " + this.responseText);
+                    window.alert(this.responseText);
+                }
+              }
+            };
+
+            xhr.send(postData);
+          }
+        });
+
+        deviceManufacturerForm.addEventListener("submit", function(event){
+          event.preventDefault();
+
+          var deviceManufacturer = document.getElementById("device-manufacturer").value;
+          var deviceType = document.getElementById("device-type").value;
+
+          if(checkStringForSQLInjection(deviceManufacturer)){
+            window.alert("ERR: Device manufacturer string contains sql injections");
+          }else if(checkStringForSQLInjection(deviceType)){
+            window.alert("ERR: Device type string contains sql injections");
+          }else{
+            const xhr = new XMLHttpRequest();
+
+            var data = {
+              deviceType:deviceType,
+              deviceManufacturer:deviceManufacturer
+            };
+            var postData = JSON.stringify(data);
+
+            xhr.open('POST', '/api/v1/admins/add_supported_device_for_repair', true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function(){
+              if(this.readyState == 4 && this.status == 200){
+                switch(this.responseText){
+                  case "SUPPORTED_DEVICE_ADDED":
+                    window.alert("Device manufacturer \"" + deviceManufacturer + "\" added to system");
+                    break;
+                  default:
+                    console.log("ERROR RECEIVED: " + this.responseText);
+                    window.alert(this.responseText);
+                }
+              }
+            };
+
+            xhr.send(postData);
+          }
+        });
+      }
+
+      function loadWorkerPosts(){
+        const xhr = new XMLHttpRequest();
+
+        xhr.open('GET', '/api/v1/worker_posts/getAll', false);
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            var workerPostMenu = document.getElementById("worker-post");
+
+            workerPostMenu.innerHTML = "";
+            this.responseText.split(";").forEach(workerPost => {
+              if(workerPost != ""){
+                var workerPostOption = document.createElement("option");
+                workerPostOption.text = workerPost;
+                workerPostOption.value = workerPost;
+                workerPostMenu.add(workerPostOption);
+              }
+            });
+          }else if(this.status == 500){
+            window.alert("ERR: " + this.responseText);
+          }
+        };
+
+        xhr.send();
+      }
+
+      function loadDeviceTypes(){
+        const xhr = new XMLHttpRequest();
+
+        xhr.open('GET', '/api/v1/device_types/getAll', false);
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            var deviceTypeMenu = document.getElementById("device-type");
+
+            deviceTypeMenu.innerHTML = "";
+            this.responseText.split(";").forEach(deviceType => {
+              if(deviceType != ""){
+                var deviceTypeOption = document.createElement("option");
+                deviceTypeOption.text = deviceType;
+                deviceTypeOption.value = deviceType;
+                deviceTypeMenu.add(deviceTypeOption);
+              }
+            });
+          }else if(this.status == 500){
+            window.alert("ERR: " + this.responseText);
+          }
+        };
+
+        xhr.send();
+      }
+
+      function checkStringForSQLInjection(string){
+        const xhr = new XMLHttpRequest();
+        var data = {
+          string:string,
+        };
+        var postData = JSON.stringify(data);
+
+        xhr.open('POST', '/api/v1/check_string_sql_injections', false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            switch(this.responseText){
+              case "INJECTIONS":
+                return true;
+                break;
+              case "NO_INJECTIONS":
+                return false;
+                break;
+              default:
+                window.alert("Error: " + this.responseText);
+            }
+          }
+        };
+
+        xhr.send(postData);
+      }
+
+      function checkForSQLInjections(username,password){
+        const xhr = new XMLHttpRequest();
+        var userCredentials = {
+          user:username,
+          pass:password
+        };
+        var userData = JSON.stringify(userCredentials);
+
+        xhr.open('POST', '/api/v1/check_sql_injections', false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            switch(this.responseText){
+              case "INJECTIONS":
+                return true;
+                break;
+              case "NO_INJECTIONS":
+                return false;
+                break;
+              default:
+                window.alert("Error in function checkForSQLInjections() (" + this.responseText + ") (" + this.response + ")");
+            }
+          }
+        };
+
+        xhr.send(userData);
+      }
+    </script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: left;
+      }
+
+      form {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        max-width: 400px;
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
+
+      input[type="text"],
+      input[type="submit"] {
+        width: 95%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+
+      input[type="submit"] {
+        background-color: #4CAF50;
+        color: #fff;
+        cursor: pointer;
+        width: auto;
+        margin-left: 0;
+        margin-right: 0;
+        display: block;
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body onload="initialize()">
+    <h1>Worker Management</h1>
+
+    <form id="worker-post-form">
+      <h2>Add Worker Post</h2>
+      <label for="workerPost">Worker post:</label>
+      <input type="text" id="workerPost" name="workerPost" placeholder="Enter worker post" required>
+      <input type="submit" value="Add Worker Post">
+    </form>
+
+    <form id="worker-form">
+      <h2>Add Worker</h2>
+      <label for="workerName">Worker name:</label>
+      <input type="text" id="workerName" name="workerName" placeholder="Enter worker name" required>
+      <label for="worker-post">Worker password:</label>
+      <input type="password" id="workerPassword" name="workerPassword" placeholder="Enter worker password" required>
+      <label for="worker-post">Worker post:</label>
+      <select id="worker-post" name="worker-post" required></select>
+      <input type="submit" value="Add Worker">
+    </form>
+
+    <form id="device-type-form">
+      <h2>Add New Device Type</h2>
+      <label for="deviceType">Device type:</label>
+      <input type="text" id="deviceType" name="deviceType" placeholder="Enter device type" required>
+      <input type="submit" value="Add Device Type">
+    </form>
+
+    <form id="device-manufacturer-form">
+      <h2>Add New Device manufacturer</h2>
+      <label for="device-manufacturer">Device manufacturer:</label>
+      <input type="text" id="device-manufacturer" name="device-manufacturer" placeholder="Enter device manufacturer" required>
+      <label for="device-type">Device type:</label>
+      <select id="device-type" name="device-type" required></select>
+      <input type="submit" value="Add Device Manufacturer">
+    </form>
+  </body>
+</html>

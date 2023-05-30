@@ -2,6 +2,7 @@ package org.elsys_bg.ElectronicsRepair.mapper;
 
 import org.elsys_bg.ElectronicsRepair.controller.resources.SupportedDeviceForRepairResource;
 import org.elsys_bg.ElectronicsRepair.entity.SupportedDeviceForRepair;
+import org.elsys_bg.ElectronicsRepair.miscellaneous.SupportedDeviceForRepairProjection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -23,4 +24,6 @@ public interface SupportedDeviceForRepairMapper{
     SupportedDeviceForRepairResource toSupportedDeviceForRepairResource(SupportedDeviceForRepair supportedDeviceForRepair);
 
     List<SupportedDeviceForRepairResource> toSupportedDeviceForRepairResources(List<SupportedDeviceForRepair> supportedDevicesForRepair);
+
+    SupportedDeviceForRepair fromSupportedDeviceForRepairProjection(SupportedDeviceForRepairProjection supportedDeviceForRepairProjection);
 }

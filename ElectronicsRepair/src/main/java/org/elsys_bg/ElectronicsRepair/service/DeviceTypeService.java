@@ -8,4 +8,8 @@ public interface DeviceTypeService{
     List<DeviceType> findAll();
 
     DeviceType save(DeviceType deviceType);
+
+    void delete(DeviceType deviceType);
+
+    void updateDeviceType(DeviceType deviceType);
 }

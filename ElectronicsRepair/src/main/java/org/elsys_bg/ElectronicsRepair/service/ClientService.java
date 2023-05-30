@@ -8,4 +8,8 @@ public interface ClientService{
     List<Client> findAll();
 
     Client save(Client client);
+
+    void delete(Client client);
+
+    void updateClient(Client client);
 }

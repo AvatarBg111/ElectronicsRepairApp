@@ -1,29 +1,121 @@
 package org.elsys_bg.ElectronicsRepair.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.elsys_bg.ElectronicsRepair.entity.Client;
-import org.elsys_bg.ElectronicsRepair.service.ClientService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.elsys_bg.ElectronicsRepair.miscellaneous.CustomFileReader;
+import org.elsys_bg.ElectronicsRepair.service.impl.ClientContactServiceImpl;
+import org.elsys_bg.ElectronicsRepair.service.impl.ClientServiceImpl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/teachers")
+@RequestMapping("api/v1/clients")
 @RequiredArgsConstructor
 public class ClientController{
-    private final ClientService clientService;
+    private final ClientServiceImpl clientService;
+    private final ClientContactServiceImpl clientContactsService;
 
-    @GetMapping
-    public String findAll(){
-        return clientService.findAll().toString();
+    @GetMapping("/getAll")
+    public ResponseEntity<String> getAllClients(){
+        String htmlContent = "";
+
+        try{
+            htmlContent = clientService.findAll().toString();
+        }catch(Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>("Error 500: Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(htmlContent, HttpStatus.OK);
     }
 
-    @GetMapping("/create")
-    public String create(){
-        Client client = new Client();
-        client.setName("admin");
-        client.setPassword("admin12345");
+    @PostMapping("/client_exists")
+    public ResponseEntity<String> checkUserExists(@RequestBody String json){
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        return clientService.save(client).toString();
+        try{
+            JsonNode jsonNode = objectMapper.readTree(json);
+            String username = jsonNode.get("user").asText();
+
+            if(clientService.userExists(username)){
+                return new ResponseEntity<>("USER_EXISTS", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("USER_NOT_EXISTS", HttpStatus.OK);
+            }
+        }catch(Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>("Error 400: Bad Request", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/client_login")
+    public ResponseEntity<String> clientLogIn(@RequestBody String json){
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try{
+            JsonNode jsonNode = objectMapper.readTree(json);
+            String username = jsonNode.get("user").asText();
+            String password = jsonNode.get("pass").asText();
+
+            if(clientService.checkClientPassword(username, password)){
+                return new ResponseEntity<>("USER_LOGGED_IN", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("CLIENT_PASSWORD_INCORRECT", HttpStatus.OK);
+            }
+        }catch(Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>("Error 400: Bad Request", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/client_signup")
+    public ResponseEntity<String> clientSignUp(@RequestBody String json){
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try{
+            JsonNode jsonNode = objectMapper.readTree(json);
+            String username = jsonNode.get("user").asText();
+            String password = jsonNode.get("pass").asText();
+            String email = jsonNode.get("email").asText();
+            String tel = jsonNode.get("tel").asText();
+            Client client;
+
+            client = clientService.signUp(username, password);
+            if(client != null){
+                if(clientContactsService.addContact(client, email, tel) != null){
+                    return new ResponseEntity<>("USER_SIGNED_UP", HttpStatus.OK);
+                }else{
+                    clientService.deleteClientByName(client.getName());
+                    return new ResponseEntity<>("USER_CONTACT_NOT_INSERTED", HttpStatus.BAD_REQUEST);
+                }
+            }else{
+                return new ResponseEntity<>("CLIENT_NOT_SIGNED_UP", HttpStatus.BAD_REQUEST);
+            }
+        }catch(Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>(String.valueOf(e), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/client_homepage")
+    public ResponseEntity<String> getClientHomepage(@RequestParam("username") String username){
+        String htmlContent = "";
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.TEXT_HTML);
+        try{
+            htmlContent = CustomFileReader.readFile(System.getProperty("user.dir") + "/src/main/java/org/elsys_bg/ElectronicsRepair/htmlPages/client_homepage.html");
+        }catch(Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>("Error 500: Internal server error", headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        htmlContent = htmlContent.replace("__USERNAME__", username);
+
+        return new ResponseEntity<>(htmlContent, headers, HttpStatus.OK);
     }
 }

@@ -8,4 +8,8 @@ public interface SupportedDeviceForRepairService{
     List<SupportedDeviceForRepair> findAll();
 
     SupportedDeviceForRepair save(SupportedDeviceForRepair supportedDeviceForRepair);
+
+    void delete(SupportedDeviceForRepair device);
+
+    void updateSupportedDeviceForRepair(SupportedDeviceForRepair device);
 }

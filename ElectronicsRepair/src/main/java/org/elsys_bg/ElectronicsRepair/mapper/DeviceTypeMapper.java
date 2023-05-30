@@ -2,6 +2,7 @@ package org.elsys_bg.ElectronicsRepair.mapper;
 
 import org.elsys_bg.ElectronicsRepair.controller.resources.DeviceTypeResource;
 import org.elsys_bg.ElectronicsRepair.entity.DeviceType;
+import org.elsys_bg.ElectronicsRepair.miscellaneous.DeviceTypeProjection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -21,4 +22,6 @@ public interface DeviceTypeMapper{
     DeviceTypeResource toDeviceTypeResource(DeviceType deviceType);
 
     List<DeviceTypeResource> toDeviceTypeResources(List<DeviceType> deviceTypes);
+
+    DeviceType fromDeviceTypeProjection(DeviceTypeProjection deviceType);
 }

@@ -21,5 +21,9 @@ public class Order{
 
     private String model;
 
-    private String specifications;
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "orderStatus")
+    private OrderStatus orderStatus;
 }
