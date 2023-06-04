@@ -1,15 +1,16 @@
 package org.elsys_bg.ElectronicsRepair.service;
 
+import org.elsys_bg.ElectronicsRepair.controller.resources.ClientContactResource;
 import org.elsys_bg.ElectronicsRepair.entity.ClientContact;
 
 import java.util.List;
 
 public interface ClientContactService{
-    List<ClientContact> findAll();
+    List<ClientContactResource> findAll();
 
-    ClientContact save(ClientContact clientContact);
+    ClientContactResource save(ClientContact clientContact);
 
     void delete(ClientContact contact);
 
-    void updateClientContact(ClientContact contact);
+    ClientContactResource updateClientContact(ClientContact contact);
 }

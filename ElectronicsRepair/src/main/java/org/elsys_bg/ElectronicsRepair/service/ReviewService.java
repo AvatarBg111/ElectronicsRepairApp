@@ -1,15 +1,16 @@
 package org.elsys_bg.ElectronicsRepair.service;
 
+import org.elsys_bg.ElectronicsRepair.controller.resources.ReviewResource;
 import org.elsys_bg.ElectronicsRepair.entity.Review;
 
 import java.util.List;
 
 public interface ReviewService{
-    List<Review> findAll();
+    List<ReviewResource> findAll();
 
-    Review save(Review review);
+    ReviewResource save(Review review);
 
     void delete(Review review);
 
-    void updateReview(Review review);
+    ReviewResource updateReview(Review review);
 }

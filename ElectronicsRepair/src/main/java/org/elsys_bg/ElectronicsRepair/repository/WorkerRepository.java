@@ -20,6 +20,7 @@ public interface WorkerRepository extends JpaRepository<Worker, Long>{
         Worker worker = findByUsername(username);
         return worker != null;
     }
+
     default boolean adminExists(String username){
         Worker worker = findByUsername(username);
         return (worker != null && hasAdminRights(username));
@@ -29,6 +30,7 @@ public interface WorkerRepository extends JpaRepository<Worker, Long>{
         Worker worker = checkPassword(username, password);
         return worker != null;
     }
+
     default boolean checkAdminPassword(String username, String password){
         Worker worker = checkPassword(username, password);
         return worker != null;

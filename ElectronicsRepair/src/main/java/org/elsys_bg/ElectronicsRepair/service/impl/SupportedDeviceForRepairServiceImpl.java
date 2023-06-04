@@ -21,26 +21,30 @@ public class SupportedDeviceForRepairServiceImpl implements SupportedDeviceForRe
     public final SupportedDeviceForRepairRepository supportedDeviceForRepairRepository;
     public final SupportedDeviceForRepairMapper supportedDeviceForRepairMapper;
 
-    public SupportedDeviceForRepair getById(Long supportedDeviceForRepairId){
-        return supportedDeviceForRepairRepository.getById(supportedDeviceForRepairId);
+    public SupportedDeviceForRepairResource getById(Long supportedDeviceForRepairId){
+        return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResource(supportedDeviceForRepairRepository.getById(supportedDeviceForRepairId));
+    }
+
+    public SupportedDeviceForRepairResource getDeviceByTypeAndManufacturer(String manufacturer, DeviceType deviceType){
+        if(deviceType == null){
+            throw new RuntimeException("ERR: Device type is null");
+        }
+
+        return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResource(supportedDeviceForRepairRepository.getByDeviceByTypeAndManufacturer(manufacturer, deviceType));
     }
 
     public List<SupportedDevicesProjection> getAllDevices(){
         return supportedDeviceForRepairRepository.getAllDevices();
     }
 
-    public SupportedDeviceForRepair getDeviceByTypeAndManufacturer(String manufacturer, DeviceType deviceType){
-        return supportedDeviceForRepairRepository.getDeviceByTypeAndManufacturer(manufacturer, deviceType);
+    @Override
+    public List<SupportedDeviceForRepairResource> findAll(){
+        return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResources(supportedDeviceForRepairRepository.findAll());
     }
 
     @Override
-    public List<SupportedDeviceForRepair> findAll(){
-        return supportedDeviceForRepairRepository.findAll();
-    }
-
-    @Override
-    public SupportedDeviceForRepair save(SupportedDeviceForRepair supportedDeviceForRepair){
-        return supportedDeviceForRepairRepository.save(supportedDeviceForRepair);
+    public SupportedDeviceForRepairResource save(SupportedDeviceForRepair supportedDeviceForRepair){
+        return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResource(supportedDeviceForRepairRepository.save(supportedDeviceForRepair));
     }
 
     @Override
@@ -49,8 +53,9 @@ public class SupportedDeviceForRepairServiceImpl implements SupportedDeviceForRe
     }
 
     @Override
-    public void updateSupportedDeviceForRepair(SupportedDeviceForRepair device) throws NoSuchElementException {
+    public SupportedDeviceForRepairResource updateSupportedDeviceForRepair(SupportedDeviceForRepair device) throws NoSuchElementException {
         SupportedDeviceForRepair existingDevice = supportedDeviceForRepairRepository.findById(Long.valueOf(device.getId())).orElse(null);
+
         if(existingDevice != null){
             existingDevice.setDeviceType(device.getDeviceType());
             existingDevice.setManufacturer(device.getManufacturer());
@@ -58,12 +63,14 @@ public class SupportedDeviceForRepairServiceImpl implements SupportedDeviceForRe
         }else{
             throw new NoSuchElementException("ERR: SupportedDeviceForRepair with ID " + device.getId() + " does not exist.");
         }
+
+        return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResource(existingDevice);
     }
 
-    public SupportedDeviceForRepair addSupportedDevice(String deviceManufacturer, DeviceType deviceType){
+    public SupportedDeviceForRepairResource addSupportedDevice(String deviceManufacturer, DeviceType deviceType){
         SupportedDeviceForRepairResource newSupportedDevice = new SupportedDeviceForRepairResource();
         newSupportedDevice.setDeviceType(deviceType);
         newSupportedDevice.setManufacturer(deviceManufacturer);
-        return supportedDeviceForRepairRepository.save(supportedDeviceForRepairMapper.fromSupportedDeviceForRepairResource(newSupportedDevice));
+        return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResource(supportedDeviceForRepairRepository.save(supportedDeviceForRepairMapper.fromSupportedDeviceForRepairResource(newSupportedDevice)));
     }
 }

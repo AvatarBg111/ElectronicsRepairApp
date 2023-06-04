@@ -1,13 +1,13 @@
 package org.elsys_bg.ElectronicsRepair.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.elsys_bg.ElectronicsRepair.entity.WorkerPost;
-import org.elsys_bg.ElectronicsRepair.service.WorkerPostService;
+import org.elsys_bg.ElectronicsRepair.controller.resources.WorkerPostResource;
+import org.elsys_bg.ElectronicsRepair.service.impl.WorkerPostServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -15,14 +15,14 @@ import java.util.List;
 @RequestMapping("api/v1/worker_posts")
 @RequiredArgsConstructor
 public class WorkerPostController{
-    private final WorkerPostService workerPostService;
+    private final WorkerPostServiceImpl workerPostService;
 
     @GetMapping("/getAll")
     public ResponseEntity<String> getAllClients(){
         StringBuilder htmlContentBuilder = new StringBuilder();
 
         try{
-            List<WorkerPost> workerPosts = workerPostService.findAll();
+            List<WorkerPostResource> workerPosts = workerPostService.findAll();
             workerPosts.forEach(post -> {
                 htmlContentBuilder.append(post.getPost()).append(";");
             });
@@ -33,5 +33,25 @@ public class WorkerPostController{
 
         String htmlContent = htmlContentBuilder.toString();
         return new ResponseEntity<>(htmlContent, HttpStatus.OK);
+    }
+
+    @PostMapping("/add_worker_post")
+    public ResponseEntity<String> addWorkerPost(@RequestBody String json){
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try{
+            JsonNode jsonNode = objectMapper.readTree(json);
+            String workerPost = jsonNode.get("workerPost").asText();
+
+            WorkerPostResource post = workerPostService.addWorkerPost(workerPost);
+            if(post != null){
+                return new ResponseEntity<>("WORKER_POST_ADDED", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("WORKER_POST_NOT_ADDED", HttpStatus.BAD_REQUEST);
+            }
+        }catch(Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>(String.valueOf(e), HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -18,22 +18,22 @@ public class WorkerPostServiceImpl implements WorkerPostService{
     public final WorkerPostRepository workerPostRepository;
     private final WorkerPostMapper workerPostMapper;
 
-    public WorkerPost getById(Long workerPostId){
-        return workerPostRepository.getById(workerPostId);
+    public WorkerPostResource getById(Long workerPostId){
+        return workerPostMapper.toWorkerPostResource(workerPostRepository.getById(workerPostId));
     }
 
-    public WorkerPost getByPost(String workerPost){
-        return workerPostRepository.getByPost(workerPost);
-    }
-
-    @Override
-    public List<WorkerPost> findAll(){
-        return workerPostRepository.findAll();
+    public WorkerPostResource getByPost(String workerPost){
+        return workerPostMapper.toWorkerPostResource(workerPostRepository.getByPost(workerPost));
     }
 
     @Override
-    public WorkerPost save(WorkerPost workerPost){
-        return workerPostRepository.save(workerPost);
+    public List<WorkerPostResource> findAll(){
+        return workerPostMapper.toWorkerPostResources(workerPostRepository.findAll());
+    }
+
+    @Override
+    public WorkerPostResource save(WorkerPost workerPost){
+        return workerPostMapper.toWorkerPostResource(workerPostRepository.save(workerPost));
     }
 
     @Override
@@ -42,19 +42,22 @@ public class WorkerPostServiceImpl implements WorkerPostService{
     }
 
     @Override
-    public void updateWorkerPost(WorkerPost post) throws NoSuchElementException{
+    public WorkerPostResource updateWorkerPost(WorkerPost post) throws NoSuchElementException{
         WorkerPost existingWorkerPost = workerPostRepository.findById(Long.valueOf(post.getId())).orElse(null);
+
         if(existingWorkerPost != null){
             existingWorkerPost.setPost(post.getPost());
             workerPostRepository.save(existingWorkerPost);
         }else{
             throw new NoSuchElementException("ERR: Worker post with ID " + post.getId() + " does not exist.");
         }
+
+        return workerPostMapper.toWorkerPostResource(existingWorkerPost);
     }
 
-    public WorkerPost addWorkerPost(String workerPost){
+    public WorkerPostResource addWorkerPost(String workerPost){
         WorkerPostResource newWorkerPost = new WorkerPostResource();
         newWorkerPost.setPost(workerPost);
-        return workerPostRepository.save(workerPostMapper.fromWorkerPostResource(newWorkerPost));
+        return workerPostMapper.toWorkerPostResource(workerPostRepository.save(workerPostMapper.fromWorkerPostResource(newWorkerPost)));
     }
 }

@@ -26,13 +26,13 @@ public class DeviceTypeServiceImpl implements DeviceTypeService{
     }
 
     @Override
-    public List<DeviceType> findAll(){
-        return deviceTypeRepository.findAll();
+    public List<DeviceTypeResource> findAll(){
+        return deviceTypeMapper.toDeviceTypeResources(deviceTypeRepository.findAll());
     }
 
     @Override
-    public DeviceType save(DeviceType deviceType){
-        return deviceTypeRepository.save(deviceType);
+    public DeviceTypeResource save(DeviceType deviceType){
+        return deviceTypeMapper.toDeviceTypeResource(deviceTypeRepository.save(deviceType));
     }
 
     @Override
@@ -41,19 +41,22 @@ public class DeviceTypeServiceImpl implements DeviceTypeService{
     }
 
     @Override
-    public void updateDeviceType(DeviceType deviceType) throws NoSuchElementException {
+    public DeviceTypeResource updateDeviceType(DeviceType deviceType) throws NoSuchElementException {
         DeviceType existingDeviceType = deviceTypeRepository.findById(Long.valueOf(deviceType.getId())).orElse(null);
+
         if(existingDeviceType != null){
             existingDeviceType.setDeviceType(deviceType.getDeviceType());
             deviceTypeRepository.save(existingDeviceType);
         }else{
             throw new NoSuchElementException("ERR: Device type with ID " + deviceType.getId() + " does not exist.");
         }
+
+        return deviceTypeMapper.toDeviceTypeResource(existingDeviceType);
     }
 
-    public DeviceType addDeviceType(String deviceType){
+    public DeviceTypeResource addDeviceType(String deviceType){
         DeviceTypeResource newDeviceType = new DeviceTypeResource();
         newDeviceType.setDeviceType(deviceType);
-        return deviceTypeRepository.save(deviceTypeMapper.fromDeviceTypeResource(newDeviceType));
+        return deviceTypeMapper.toDeviceTypeResource(deviceTypeRepository.save(deviceTypeMapper.fromDeviceTypeResource(newDeviceType)));
     }
 }

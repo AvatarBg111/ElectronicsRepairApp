@@ -22,13 +22,13 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public List<Admin> findAll(){
-        return adminRepository.findAll();
+    public List<AdminResource> findAll(){
+        return adminMapper.toAdminResources(adminRepository.findAll());
     }
 
     @Override
-    public Admin save(Admin admin){
-        return adminRepository.save(admin);
+    public AdminResource save(Admin admin){
+        return adminMapper.toAdminResource(adminRepository.save(admin));
     }
 
     @Override
@@ -37,8 +37,9 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public void updateAdmin(Admin admin) throws NoSuchElementException {
+    public AdminResource updateAdmin(Admin admin) throws NoSuchElementException {
         Admin existingAdmin = adminRepository.findById(Long.valueOf(admin.getId())).orElse(null);
+
         if(existingAdmin != null){
             existingAdmin.setName(admin.getName());
             existingAdmin.setPassword(admin.getPassword());
@@ -46,6 +47,8 @@ public class AdminServiceImpl implements AdminService{
         }else{
             throw new NoSuchElementException("ERR: Admin with ID " + admin.getId() + " does not exist.");
         }
+
+        return adminMapper.toAdminResource(existingAdmin);
     }
 
     public void deleteAdminByName(String username){
@@ -60,10 +63,10 @@ public class AdminServiceImpl implements AdminService{
         return adminRepository.checkAdminPassword(username, password);
     }
 
-    public Admin signUp(String username, String password){
+    public AdminResource signUp(String username, String password){
         AdminResource newAdmin = new AdminResource();
         newAdmin.setName(username);
         newAdmin.setPassword(password);
-        return adminRepository.save(adminMapper.fromAdminResource(newAdmin));
+        return adminMapper.toAdminResource(adminRepository.save(adminMapper.fromAdminResource(newAdmin)));
     }
 }

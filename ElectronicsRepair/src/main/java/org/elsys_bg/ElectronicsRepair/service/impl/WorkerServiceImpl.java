@@ -20,18 +20,18 @@ public class WorkerServiceImpl implements WorkerService{
     public final WorkerPostRepository workerPostRepository;
     public final WorkerMapper workerMapper;
 
-    public Worker getById(Long workerId){
-        return workerRepository.getById(workerId);
+    public WorkerResource getById(Long workerId){
+        return workerMapper.toWorkerResource(workerRepository.getById(workerId));
     }
 
     @Override
-    public List<Worker> findAll(){
-        return workerRepository.findAll();
+    public List<WorkerResource> findAll(){
+        return workerMapper.toWorkerResources(workerRepository.findAll());
     }
 
     @Override
-    public Worker save(Worker worker){
-        return workerRepository.save(worker);
+    public WorkerResource save(Worker worker){
+        return workerMapper.toWorkerResource(workerRepository.save(worker));
     }
 
     @Override
@@ -40,8 +40,9 @@ public class WorkerServiceImpl implements WorkerService{
     }
 
     @Override
-    public void updateWorker(Worker worker) throws NoSuchElementException{
+    public WorkerResource updateWorker(Worker worker) throws NoSuchElementException{
         Worker existingWorker = workerRepository.findById(Long.valueOf(worker.getId())).orElse(null);
+
         if(existingWorker != null){
             existingWorker.setName(worker.getName());
             existingWorker.setPassword(worker.getPassword());
@@ -49,6 +50,8 @@ public class WorkerServiceImpl implements WorkerService{
         }else{
             throw new NoSuchElementException("ERR: Worker with ID " + worker.getId() + " does not exist.");
         }
+
+        return workerMapper.toWorkerResource(existingWorker);
     }
 
     public boolean workerExists(String username){
@@ -65,11 +68,11 @@ public class WorkerServiceImpl implements WorkerService{
         return workerRepository.checkAdminPassword(username, password);
     }
 
-    public Worker signUp(String username, String password, WorkerPost post){
+    public WorkerResource signUp(String username, String password, WorkerPost post){
         WorkerResource newWorker = new WorkerResource();
         newWorker.setName(username);
         newWorker.setPassword(password);
         newWorker.setPost(post);
-        return workerRepository.save(workerMapper.fromWorkerResource(newWorker));
+        return workerMapper.toWorkerResource(workerRepository.save(workerMapper.fromWorkerResource(newWorker)));
     }
 }

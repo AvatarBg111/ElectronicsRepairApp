@@ -9,14 +9,14 @@
     <title>Admin Homepage</title>
 
     <script>
-      var workerPostFormId = "worker-post-form";
-      var workerFormId = "worker-form";
-      var deviceTypeFormId = "device-type-form";
-      var deviceManufacturerFormId = "device-manufacturer-form";
-      var workerPostForm;
-      var workerForm;
-      var deviceTypeForm;
-      var deviceManufacturerForm;
+      let workerPostFormId = "worker-post-form";
+      let workerFormId = "worker-form";
+      let deviceTypeFormId = "device-type-form";
+      let deviceManufacturerFormId = "device-manufacturer-form";
+      let workerPostForm;
+      let workerForm;
+      let deviceTypeForm;
+      let deviceManufacturerForm;
 
       function initialize(){
         workerPostForm = document.getElementById(workerPostFormId);
@@ -30,19 +30,19 @@
         workerPostForm.addEventListener("submit", function(event){
           event.preventDefault();
 
-          var workerPost = document.getElementById("workerPost").value;
+          let workerPost = document.getElementById("workerPost").value;
 
           if(checkStringForSQLInjection(workerPost)){
             window.alert("ERR: Worker post string contains sql injections");
           }else{
             const xhr = new XMLHttpRequest();
 
-            var data = {
+            let data = {
               workerPost:workerPost
             };
-            var postData = JSON.stringify(data);
+            let postData = JSON.stringify(data);
 
-            xhr.open('POST', '/api/v1/admins/add_worker_post', true);
+            xhr.open('POST', '/api/v1/worker_posts/add_worker_post', true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onload = function(){
               if(this.readyState == 4 && this.status == 200){
@@ -65,9 +65,9 @@
         workerForm.addEventListener("submit", function(event){
           event.preventDefault();
 
-          var workerName = document.getElementById("workerName").value;
-          var workerPassword = document.getElementById("workerPassword").value;
-          var workerPost = document.getElementById("worker-post").value;
+          let workerName = document.getElementById("workerName").value;
+          let workerPassword = document.getElementById("workerPassword").value;
+          let workerPost = document.getElementById("worker-post").value;
 
           if(checkStringForSQLInjection(workerPost)){
             window.alert("ERR: Worker post string contains sql injections");
@@ -76,14 +76,14 @@
           }else{
             const xhr = new XMLHttpRequest();
 
-            var workerCredentials = {
+            let workerCredentials = {
               workerName:workerName,
               workerPassword:workerPassword,
               workerPost:workerPost
             };
-            var workerData = JSON.stringify(workerCredentials);
+            let workerData = JSON.stringify(workerCredentials);
 
-            xhr.open('POST', '/api/v1/admins/add_worker', true);
+            xhr.open('POST', '/api/v1/workers/add_worker', true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onload = function(){
               if(this.readyState == 4 && this.status == 200){
@@ -105,19 +105,19 @@
         deviceTypeForm.addEventListener("submit", function(event){
           event.preventDefault();
 
-          var deviceType = document.getElementById("deviceType").value;
+          let deviceType = document.getElementById("deviceType").value;
 
           if(checkStringForSQLInjection(deviceType)){
             window.alert("ERR: Device type string contains sql injections");
           }else{
             const xhr = new XMLHttpRequest();
 
-            var data = {
+            let data = {
               deviceType:deviceType
             };
-            var postData = JSON.stringify(data);
+            let postData = JSON.stringify(data);
 
-            xhr.open('POST', '/api/v1/admins/add_device_type', true);
+            xhr.open('POST', '/api/v1/device_types/add_device_type', true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onload = function(){
               if(this.readyState == 4 && this.status == 200){
@@ -140,8 +140,8 @@
         deviceManufacturerForm.addEventListener("submit", function(event){
           event.preventDefault();
 
-          var deviceManufacturer = document.getElementById("device-manufacturer").value;
-          var deviceType = document.getElementById("device-type").value;
+          let deviceManufacturer = document.getElementById("device-manufacturer").value;
+          let deviceType = document.getElementById("device-type").value;
 
           if(checkStringForSQLInjection(deviceManufacturer)){
             window.alert("ERR: Device manufacturer string contains sql injections");
@@ -150,13 +150,13 @@
           }else{
             const xhr = new XMLHttpRequest();
 
-            var data = {
+            let data = {
               deviceType:deviceType,
               deviceManufacturer:deviceManufacturer
             };
-            var postData = JSON.stringify(data);
+            let postData = JSON.stringify(data);
 
-            xhr.open('POST', '/api/v1/admins/add_supported_device_for_repair', true);
+            xhr.open('POST', '/api/v1/supported_devices/add_supported_device_for_repair', true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onload = function(){
               if(this.readyState == 4 && this.status == 200){
@@ -182,12 +182,12 @@
         xhr.open('GET', '/api/v1/worker_posts/getAll', false);
         xhr.onload = function(){
           if(this.readyState == 4 && this.status == 200){
-            var workerPostMenu = document.getElementById("worker-post");
+            let workerPostMenu = document.getElementById("worker-post");
 
             workerPostMenu.innerHTML = "";
             this.responseText.split(";").forEach(workerPost => {
               if(workerPost != ""){
-                var workerPostOption = document.createElement("option");
+                let workerPostOption = document.createElement("option");
                 workerPostOption.text = workerPost;
                 workerPostOption.value = workerPost;
                 workerPostMenu.add(workerPostOption);
@@ -207,12 +207,12 @@
         xhr.open('GET', '/api/v1/device_types/getAll', false);
         xhr.onload = function(){
           if(this.readyState == 4 && this.status == 200){
-            var deviceTypeMenu = document.getElementById("device-type");
+            let deviceTypeMenu = document.getElementById("device-type");
 
             deviceTypeMenu.innerHTML = "";
             this.responseText.split(";").forEach(deviceType => {
               if(deviceType != ""){
-                var deviceTypeOption = document.createElement("option");
+                let deviceTypeOption = document.createElement("option");
                 deviceTypeOption.text = deviceType;
                 deviceTypeOption.value = deviceType;
                 deviceTypeMenu.add(deviceTypeOption);
@@ -228,10 +228,10 @@
 
       function checkStringForSQLInjection(string){
         const xhr = new XMLHttpRequest();
-        var data = {
+        let data = {
           string:string,
         };
-        var postData = JSON.stringify(data);
+        let postData = JSON.stringify(data);
 
         xhr.open('POST', '/api/v1/check_string_sql_injections', false);
         xhr.setRequestHeader("Content-Type", "application/json");
@@ -255,11 +255,11 @@
 
       function checkForSQLInjections(username,password){
         const xhr = new XMLHttpRequest();
-        var userCredentials = {
+        let userCredentials = {
           user:username,
           pass:password
         };
-        var userData = JSON.stringify(userCredentials);
+        let userData = JSON.stringify(userCredentials);
 
         xhr.open('POST', '/api/v1/check_sql_injections', false);
         xhr.setRequestHeader("Content-Type", "application/json");

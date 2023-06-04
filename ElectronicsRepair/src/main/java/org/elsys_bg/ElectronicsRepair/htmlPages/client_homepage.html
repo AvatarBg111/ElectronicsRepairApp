@@ -1,228 +1,233 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="VCT web app home page" content="VCT">
-  <meta name="keywords" content="HTML, CSS, JavaScript, NodeJS">
-  <meta name="VCT" content="VCT">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VCT Chat Webpage</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="OOP webapp client homepage" content="OOP">
+    <meta name="keywords" content="HTML, CSS, JavaScript, Java">
+    <meta name="OOP" content="OOP">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Homepage</title>
 
-  <script>
-    var currentUserName = "__USERNAME__";
-    var openedContactUserName = "";
-    var lastMessageId = 0;
+    <script>
+      let clientName = "__CLIENT_NAME__";
+      let orderFormId = "order-form";
+      let reviewFormId = "review-form";
+      let deviceTypeAndManufacturerId = "device-type-manufacturer";
+      let deviceModelId = "device-model";
+      let orderDescriptionId = "order-description";
+      let reviewTextId = "review";
+      let orderForm;
+      let reviewForm;
+      let deviceTypeAndManufacturer;
 
-    function initialize(){
-      getContacts(currentUserName);
-    }
+      function initialize(){
+        orderForm = document.getElementById(orderFormId);
+        deviceTypeAndManufacturer = document.getElementById(deviceTypeAndManufacturerId);
+        reviewForm = document.getElementById(reviewFormId);
 
-    function getContacts(username){
-      const xhr = new XMLHttpRequest();
-      var params = {user: username};
-      var data = JSON.stringify(params);
+        loadDeviceTypesAndManufacturers();
 
-      xhr.open('POST', '/get/user/contacts', true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onload = function(){
-        if(this.readyState == 4 && this.status == 200){
-          showContacts(this.responseText);
-        }
-      };
-      xhr.send(data);
-    }
+        orderForm.addEventListener("submit", function(event){
+          event.preventDefault();
+          let deviceModel = document.getElementById(deviceModelId).value;
+          let orderDescription = document.getElementById(orderDescriptionId).value;
 
-    function showContacts(contactInfo){
-      var contactsData = JSON.parse(contactInfo);
-      switch(contactsData.res){
-        case "NO_CONTACT_INFO":
-          window.alert("no contact info");
-          break;
-        case "CONTACT_INFO":
-          //Show contact info by looping through contact array
-          window.alert(contactInfo);
-          break;
-        default:
-          window.alert(contactsData.res);
+          if(checkStringForSQLInjection(deviceModel)){
+            window.alert("ERR: Device model string contains sql injections");
+          }else if(checkStringForSQLInjection(orderDescription)){
+            window.alert("ERR: Device model string contains sql injections");
+          }else{
+              const xhr = new XMLHttpRequest();
+              let data = {
+                clientName:clientName,
+                supportedDevice:deviceTypeAndManufacturer.value,
+                deviceModel:deviceModel,
+                orderDescription:orderDescription
+              };
+              let postData = JSON.stringify(data);
+
+              xhr.open('POST', '/api/v1/orders/add_order', false);
+              xhr.setRequestHeader("Content-Type", "application/json");
+              xhr.onload = function(){
+                if(this.readyState == 4 && this.status == 200){
+                  switch(this.responseText){
+                    case "ORDER_ADDED":
+                      window.alert("Order was added");
+                      break;
+                    case "ORDER_NOT_ADDED":
+                      window.alert("Order could not be added");
+                      break;
+                    default:
+                      window.alert(this.responseText);
+                  }
+                }else if(this.status == 500){
+                  window.alert(this.responseText);
+                }
+              };
+
+              xhr.send(postData);
+            }
+          });
+
+        reviewForm.addEventListener("submit", function(event){
+          event.preventDefault();
+          let reviewText = document.getElementById(reviewTextId).value;
+
+          if(checkStringForSQLInjection(reviewText)){
+            window.alert("ERR: Review text contains sql injections");
+          }else{
+            const xhr = new XMLHttpRequest();
+            let data = {
+              clientName:clientName,
+              reviewText:reviewText
+            };
+            let postData = JSON.stringify(data);
+
+            xhr.open('POST', '/api/v1/reviews/add_review', false);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function(){
+              if(this.readyState == 4 && this.status == 200){
+                switch(this.responseText){
+                  case "REVIEW_ADDED":
+                    window.alert("Review was added");
+                    break;
+                  case "REVIEW_NOT_ADDED":
+                    window.alert("ERR: Review could not be added");
+                    break;
+                  default:
+                    window.alert(this.responseText);
+                }
+              }else if(this.status == 500){
+                window.alert(this.responseText);
+              }
+            };
+
+            xhr.send(postData);
+          }
+        });
       }
-    }
 
-    function openContact(contactUserName){
-      if(openedContactUserName == ""){
-        openedContactUserName = contactUserName;
-        //Open chat with contact
-      }else{
-        //Delete chat with previously opened contact
-        openedContactUserName = contactUserName;
-        //Open chat with contact
-        //Get last message id
-        lastMessageId = getLastMessageId();
+      function loadDeviceTypesAndManufacturers(){
+        const xhr = new XMLHttpRequest();
+
+        xhr.open('GET', '/api/v1/supported_devices/getAll', false);
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            deviceTypeAndManufacturer.innerHTML = "";
+            this.responseText.split(";").forEach(deviceTypeManufacturer => {
+              if(deviceTypeManufacturer != ""){
+                let deviceTypeManufacturerOption = document.createElement("option");
+                deviceTypeManufacturerOption.text = deviceTypeManufacturer;
+                deviceTypeManufacturerOption.value = deviceTypeManufacturer;
+                deviceTypeAndManufacturer.add(deviceTypeManufacturerOption);
+              }
+            });
+          }else if(this.status == 500){
+            window.alert("ERR: " + this.responseText);
+          }
+        };
+
+        xhr.send();
       }
-    }
 
-    function getNewestMessages(lastMessageId){
-      //Send ajax request to get new messages by sending the id of the last message
-    }
+      function checkStringForSQLInjection(string){
+        const xhr = new XMLHttpRequest();
+        let data = {
+          string:string,
+        };
+        let postData = JSON.stringify(data);
 
-    function logoutUser(){
-      currentUserName = "";
-      openedContactUserName = "";
-      lastMessageId = 0;
+        xhr.open('POST', '/api/v1/check_string_sql_injections', false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            switch(this.responseText){
+              case "INJECTIONS":
+                return true;
+                break;
+              case "NO_INJECTIONS":
+                return false;
+                break;
+              default:
+                window.alert("Error: " + this.responseText);
+            }
+          }
+        };
 
-      window.location.href = "/signin";
-      return;
-    }
-  </script>
+        xhr.send(postData);
+      }
+    </script>
 
-  <style>
-    /* Set the font and background color for the page */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-    }
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+      }
 
-    /* Center the main content and add some padding */
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+      h1 {
+        text-align: left;
+      }
 
-    /* Style the page header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
+      form {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        max-width: 400px;
+        margin-left: 0;
+        margin-right: 0;
+      }
 
-    .header h1 {
-      font-size: 36px;
-      font-weight: bold;
-      color: #333;
-    }
+      label {
+        display: block;
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
 
-    /* Style the navbar */
-    .navbar {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-bottom: 20px;
-    }
+      input[type="text"],
+      input[type="submit"] {
+        width: 95%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
 
-    .navbar button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-left: 10px;
-    }
+      input[type="submit"] {
+        background-color: #4CAF50;
+        color: #fff;
+        cursor: pointer;
+        width: auto;
+        margin-left: 0;
+        margin-right: 0;
+        display: block;
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body onload="initialize()">
+  <form id="order-form">
+    <h2>Add Order</h2>
 
-    .navbar button:hover {
-      background-color: #0062cc;
-    }
+    <label for="device-type-manufacturer">Device type and manufacturer:</label>
+    <select id="device-type-manufacturer" name="device-type-manufacturer" required></select>
 
-    /* Style the button to add new chats */
-    .add-chat-button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+    <label for="device-model">Model:</label>
+    <input type="text" id="device-model" name="device-model" placeholder="Enter device model" required>
 
-    .add-chat-button:hover {
-      background-color: #0062cc;
-    }
+    <label for="order-description">Description:</label>
+    <input type="text" id="order-description" name="order-description" placeholder="Enter order description" required>
 
-    /* Style the button to switch between chats */
-    .chat-button {
-      padding: 10px 20px;
-      background-color: #fff;
-      color: #333;
-      border: none;
-      border-radius: 5px;
-      margin-right: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+    <input type="submit" value="Add order">
+  </form>
 
-    .chat-button.active {
-      background-color: #007bff;
-      color: #fff;
-    }
-
-    .chat-button:hover {
-      background-color: #e6e6e6;
-    }
-
-    /* Style the chat section */
-    .chat-section {
-      width: 100%;
-      height: 500px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 10px;
-      overflow-y: scroll;
-    }
-
-    /* Style the chat bubbles for sent and received messages */
-    .chat-bubble {
-      display: inline-block;
-      padding: 10px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-    }
-
-    .sent {
-      background-color: #dcf8c6;
-      float: right;
-    }
-
-    .received {
-      background-color: #fff;
-      float: left;
-    }
-  </style>
-</head>
-<body onload="initialize()">
-<div class="container">
-  <div class="header">
-    <h1>VCT Chat Webpage</h1>
-    <div class="navbar">
-      <!--<button>Login</button>-->
-      <button onclick="logoutUser()">Logout</button>
-    </div>
-  </div>
-  <div>
-    <!-- Create buttons for each person you want to chat with -->
-    <button class="chat-button">Person 1</button>
-    <button class="chat-button">Person 2</button>
-    <button class="chat-button">Person 3</button>
-    <button class="add-chat-button">Add Chat</button>
-  </div>
-  <div class="chat-section">
-    <!-- Display the chat messages for the currently active chat -->
-    <div id="person1-chat" class="chat active-chat">
-      <div class="chat-bubble sent">Hi there!</div>
-      <div class="chat-bubble received">Hey, what's up?</div>
-    </div>
-    <div id="person2-chat" class="chat">
-      <div class="chat-bubble sent">Hello!</div>
-      <div class="chat-bubble received">Not much, how about you?</div>
-    </div>
-    <div id="person3-chat" class="chat">
-      <div class="chat-bubble sent">Hey!</div>
-      <div class="chat-bubble received">Hey, long time no see!</div>
-      <div class="chat-bubble sent">Yeah, it's been a while.</div>
-    </div>
-  </div>
-</div>
-</body>
+  <form id="review-form">
+    <h2>Leave a Review</h2>
+    <input type="text" id="review" name="review" placeholder="Enter review" required>
+    <input type="submit" value="Submit review">
+  </form>
+  </body>
 </html>

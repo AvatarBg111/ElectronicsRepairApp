@@ -17,18 +17,22 @@ public class ClientServiceImpl implements ClientService{
     public final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
 
-    public Client getById(Long clientId){
-        return clientRepository.getById(clientId);
+    public ClientResource getById(Long clientId){
+        return clientMapper.toClientResource(clientRepository.getById(clientId));
+    }
+
+    public ClientResource getByName(String clientName){
+        return clientMapper.toClientResource(clientRepository.findByUsername(clientName));
     }
 
     @Override
-    public List<Client> findAll(){
-        return clientRepository.findAll();
+    public List<ClientResource> findAll(){
+        return clientMapper.toClientResources(clientRepository.findAll());
     }
 
     @Override
-    public Client save(Client client){
-        return clientRepository.save(client);
+    public ClientResource save(Client client){
+        return clientMapper.toClientResource(clientRepository.save(client));
     }
 
     @Override
@@ -37,8 +41,9 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
-    public void updateClient(Client client) throws NoSuchElementException{
+    public ClientResource updateClient(Client client) throws NoSuchElementException{
         Client existingClient = clientRepository.findById(Long.valueOf(client.getId())).orElse(null);
+
         if(existingClient != null){
             existingClient.setName(client.getName());
             existingClient.setPassword(client.getPassword());
@@ -46,6 +51,8 @@ public class ClientServiceImpl implements ClientService{
         }else{
             throw new NoSuchElementException("ERR: Client with ID " + client.getId() + " does not exist.");
         }
+
+        return clientMapper.toClientResource(existingClient);
     }
 
     public void deleteClientByName(String username){
@@ -60,10 +67,10 @@ public class ClientServiceImpl implements ClientService{
         return clientRepository.checkClientPassword(username, password);
     }
 
-    public Client signUp(String username, String password){
+    public ClientResource signUp(String username, String password){
         ClientResource newClient = new ClientResource();
         newClient.setName(username);
         newClient.setPassword(password);
-        return clientRepository.save(clientMapper.fromClientResource(newClient));
+        return clientMapper.toClientResource(clientRepository.save(clientMapper.fromClientResource(newClient)));
     }
 }

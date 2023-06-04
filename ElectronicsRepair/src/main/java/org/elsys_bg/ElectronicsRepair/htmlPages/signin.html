@@ -10,15 +10,15 @@
         <title>Sign in form</title>
 
         <script>
-            var userRole = "__USER_ROLE__";
-            var signUpFormId = "signup-form";
-            var signUpFormUsernameId = "signup-username";
-            var signUpFormPasswordId = "signup-password";
-            var signUpFormEmailId = "signup-email";
-            var signUpFormTelId = "signup-tel";
-            var logInFormId = "login-form";
-            var logInFormUsernameId = "login-username";
-            var logInFormPasswordId = "login-password";
+            let userRole = "__USER_ROLE__";
+            let signUpFormId = "signup-form";
+            let signUpFormUsernameId = "signup-username";
+            let signUpFormPasswordId = "signup-password";
+            let signUpFormEmailId = "signup-email";
+            let signUpFormTelId = "signup-tel";
+            let logInFormId = "login-form";
+            let logInFormUsernameId = "login-username";
+            let logInFormPasswordId = "login-password";
 
             function initialize(){
                 const loginForm = document.getElementById(logInFormId);
@@ -31,7 +31,7 @@
                     const switchButtons = document.getElementsByClassName("switch-form");
 
                     signupForm.style.deisplay = "none";
-                    for(var i = 0; i < switchButtons.length; i++)
+                    for(let i = 0; i < switchButtons.length; i++)
                         switchButtons.item(i).style.display= "none";
                 }
 
@@ -50,10 +50,10 @@
                 document.getElementById(signUpFormId).addEventListener("submit", function(event){
                     event.preventDefault();
 
-                    var username = document.getElementById(signUpFormUsernameId).value;
-                    var password = document.getElementById(signUpFormPasswordId).value;
-                    var email = document.getElementById(signUpFormEmailId).value;
-                    var tel = document.getElementById(signUpFormTelId).value;
+                    let username = document.getElementById(signUpFormUsernameId).value;
+                    let password = document.getElementById(signUpFormPasswordId).value;
+                    let email = document.getElementById(signUpFormEmailId).value;
+                    let tel = document.getElementById(signUpFormTelId).value;
 
                     if(checkForSQLInjections(username,password)){
                         window.alert("Incorrect input");
@@ -61,13 +61,13 @@
                         window.alert("The given username is already taken");
                     }else{
                         const xhr = new XMLHttpRequest();
-                        var userCredentials = {
+                        let userCredentials = {
                             user:username,
                             pass:password,
                             email:email,
                             tel:tel
                         };
-                        var userData = JSON.stringify(userCredentials);
+                        let userData = JSON.stringify(userCredentials);
 
                         xhr.open('POST', '/api/v1/clients/client_signup', true);
                         xhr.setRequestHeader("Content-Type", "application/json");
@@ -75,7 +75,7 @@
                             if(this.readyState == 4 && this.status == 200){
                                 switch(this.responseText){
                                     case "USER_SIGNED_UP":
-                                        var url = "/api/v1/clients/client_homepage?username=" + encodeURIComponent(username);
+                                        let url = "/api/v1/clients/client_homepage?username=" + encodeURIComponent(username);
                                         window.location.href = url;
                                         return;
                                     default:
@@ -90,8 +90,8 @@
                 document.getElementById(logInFormId).addEventListener("submit", function(event){
                     event.preventDefault();
 
-                    var username = document.getElementById(logInFormUsernameId).value;
-                    var password = document.getElementById(logInFormPasswordId).value;
+                    let username = document.getElementById(logInFormUsernameId).value;
+                    let password = document.getElementById(logInFormPasswordId).value;
 
                     if(checkForSQLInjections(username,password)){
                         window.alert("Incorrect input");
@@ -99,11 +99,11 @@
                         window.alert(userRole + " " + username + " does not exist");
                     }else{
                         const xhr = new XMLHttpRequest();
-                        var userCredentials = {
+                        let userCredentials = {
                             user:username,
                             pass:password
                         };
-                        var userData = JSON.stringify(userCredentials);
+                        let userData = JSON.stringify(userCredentials);
 
                         if(userRole == "client"){
                             xhr.open('POST', '/api/v1/clients/client_login', true);
@@ -117,7 +117,7 @@
                             if(this.readyState == 4 && this.status == 200){
                                 switch(this.responseText){
                                     case "USER_LOGGED_IN":
-                                        var url = "";
+                                        let url = "";
 
                                         if(userRole == "client"){
                                             url = "/api/v1/clients/client_homepage";
@@ -143,11 +143,11 @@
 
             function checkForSQLInjections(username,password){
                 const xhr = new XMLHttpRequest();
-                var userCredentials = {
+                let userCredentials = {
                     user:username,
                     pass:password
                 };
-                var userData = JSON.stringify(userCredentials);
+                let userData = JSON.stringify(userCredentials);
 
                 xhr.open('POST', '/api/v1/check_sql_injections', false);
                 xhr.setRequestHeader("Content-Type", "application/json");
@@ -171,10 +171,10 @@
 
             function userExists(username,password,role){
                 const xhr = new XMLHttpRequest();
-                var userCredentials = {
+                let userCredentials = {
                     user:username,
                 };
-                var userData = JSON.stringify(userCredentials);
+                let userData = JSON.stringify(userCredentials);
 
                 if(role == "client"){
                     xhr.open('POST', '/api/v1/clients/client_exists', false);

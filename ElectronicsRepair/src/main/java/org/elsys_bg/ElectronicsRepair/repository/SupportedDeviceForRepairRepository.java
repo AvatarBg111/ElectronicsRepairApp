@@ -16,5 +16,5 @@ public interface SupportedDeviceForRepairRepository extends JpaRepository<Suppor
     List<SupportedDevicesProjection> getAllDevices();
 
     @Query("SELECT sd FROM SupportedDeviceForRepair sd WHERE sd.deviceType = :deviceType AND sd.manufacturer = :manufacturer")
-    SupportedDeviceForRepair getDeviceByTypeAndManufacturer(String manufacturer, DeviceType deviceType);
+    SupportedDeviceForRepair getByDeviceByTypeAndManufacturer(String manufacturer, DeviceType deviceType);
 }

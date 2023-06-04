@@ -1,14 +1,17 @@
 package org.elsys_bg.ElectronicsRepair.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.elsys_bg.ElectronicsRepair.controller.resources.SupportedDeviceForRepairResource;
+import org.elsys_bg.ElectronicsRepair.entity.DeviceType;
+import org.elsys_bg.ElectronicsRepair.entity.SupportedDeviceForRepair;
 import org.elsys_bg.ElectronicsRepair.miscellaneous.SupportedDevicesProjection;
-import org.elsys_bg.ElectronicsRepair.service.impl.AdminServiceImpl;
+import org.elsys_bg.ElectronicsRepair.service.impl.DeviceTypeServiceImpl;
 import org.elsys_bg.ElectronicsRepair.service.impl.SupportedDeviceForRepairServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
 @RequestMapping("api/v1/supported_devices")
 @RequiredArgsConstructor
 public class SupportedDeviceForRepairController{
+    private final DeviceTypeServiceImpl deviceTypeService;
     private final SupportedDeviceForRepairServiceImpl supportedDeviceService;
 
     @GetMapping("/getAll")
@@ -25,7 +29,7 @@ public class SupportedDeviceForRepairController{
         try{
             List<SupportedDevicesProjection> devices = supportedDeviceService.getAllDevices();
             devices.forEach(device -> {
-                htmlContentBuilder.append("Manufacturer: ").append(device.getManufacturer()).append("\tDevice type: ").append(device.getDeviceType()).append("\n");
+                htmlContentBuilder.append(device.getManufacturer()).append(", ").append(device.getDeviceType()).append(";");
             });
         }catch(Exception e){
             System.out.println(e);
@@ -34,5 +38,30 @@ public class SupportedDeviceForRepairController{
 
         String htmlContent = htmlContentBuilder.toString();
         return new ResponseEntity<>(htmlContent, HttpStatus.OK);
+    }
+
+    @PostMapping("/add_supported_device_for_repair")
+    public ResponseEntity<String> addSupportedDeviceForRepair(@RequestBody String json){
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try{
+            JsonNode jsonNode = objectMapper.readTree(json);
+            String deviceManufacturer = jsonNode.get("deviceManufacturer").asText();
+            DeviceType deviceType = deviceTypeService.getByDevice(jsonNode.get("deviceType").asText());
+
+            if(supportedDeviceService.getDeviceByTypeAndManufacturer(deviceManufacturer, deviceType) != null){
+                return new ResponseEntity<>("SUPPORTED_DEVICE_ALREADY_EXISTS", HttpStatus.OK);
+            }
+
+            SupportedDeviceForRepairResource supportedDevice = supportedDeviceService.addSupportedDevice(deviceManufacturer, deviceType);
+            if(supportedDevice != null){
+                return new ResponseEntity<>("SUPPORTED_DEVICE_ADDED", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("SUPPORTED_DEVICE_NOT_ADDED", HttpStatus.BAD_REQUEST);
+            }
+        }catch(Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>(String.valueOf(e), HttpStatus.BAD_REQUEST);
+        }
     }
 }

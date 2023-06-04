@@ -1,228 +1,279 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="VCT web app home page" content="VCT">
-  <meta name="keywords" content="HTML, CSS, JavaScript, NodeJS">
-  <meta name="VCT" content="VCT">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VCT Chat Webpage</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="OOP webapp worker homepage" content="OOP">
+    <meta name="keywords" content="HTML, CSS, JavaScript, Java">
+    <meta name="OOP" content="OOP">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Homepage</title>
 
-  <script>
-    var currentUserName = "__USERNAME__";
-    var openedContactUserName = "";
-    var lastMessageId = 0;
+    <script>
+      let workerName = "__WORKER_NAME__";
+      let ordersTableId = "order-table";
+      let ordersTable;
 
-    function initialize(){
-      getContacts(currentUserName);
-    }
-
-    function getContacts(username){
-      const xhr = new XMLHttpRequest();
-      var params = {user: username};
-      var data = JSON.stringify(params);
-
-      xhr.open('POST', '/get/user/contacts', true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onload = function(){
-        if(this.readyState == 4 && this.status == 200){
-          showContacts(this.responseText);
-        }
-      };
-      xhr.send(data);
-    }
-
-    function showContacts(contactInfo){
-      var contactsData = JSON.parse(contactInfo);
-      switch(contactsData.res){
-        case "NO_CONTACT_INFO":
-          window.alert("no contact info");
-          break;
-        case "CONTACT_INFO":
-          //Show contact info by looping through contact array
-          window.alert(contactInfo);
-          break;
-        default:
-          window.alert(contactsData.res);
+      function initialize(){
+        ordersTable = document.getElementById(ordersTableId);
       }
-    }
 
-    function openContact(contactUserName){
-      if(openedContactUserName == ""){
-        openedContactUserName = contactUserName;
-        //Open chat with contact
-      }else{
-        //Delete chat with previously opened contact
-        openedContactUserName = contactUserName;
-        //Open chat with contact
-        //Get last message id
-        lastMessageId = getLastMessageId();
+      function finishRow(id){
+        const xhr = new XMLHttpRequest();
+        let row = document.getElementById('order-table').querySelector('tr[data-id="' + id + '"]');
+
+        let data = {
+          orderId:id
+        };
+        let postData = JSON.stringify(data);
+
+        xhr.open('PUT', '/api/v1/orders/finish_order', false);
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            switch(this.responseText){
+              case "ORDER_FINISHED":
+                if(row){
+                  row.parentNode.removeChild(row);
+                }else{
+                  window.alert("ERR: Could not find order with id = " + id);
+                }
+                window.alert("Order was finished");
+                break;
+              case "ORDER_NOT_FINISHED":
+                window.alert("ERR: Status of order wasn't changed");
+                break;
+              default:
+                window.alert(this.responseText);
+            }
+          }else if(this.status == 500){
+            window.alert("ERR: " + this.responseText);
+          }
+        };
+
+        xhr.send(postData);
       }
-    }
 
-    function getNewestMessages(lastMessageId){
-      //Send ajax request to get new messages by sending the id of the last message
-    }
+      function removeOrders(){
+        ordersTable.innerHTML = "";
+      }
 
-    function logoutUser(){
-      currentUserName = "";
-      openedContactUserName = "";
-      lastMessageId = 0;
+      function addHeadingRow(){
+        let headingRow = ordersTable.insertRow();
 
-      window.location.href = "/signin";
-      return;
-    }
-  </script>
+        let orderIdTh = document.createElement("th");
+        orderIdTh.innerText = "Order Id";
+        headingRow.appendChild(orderIdTh);
 
-  <style>
-    /* Set the font and background color for the page */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-    }
+        let deviceTypeTh = document.createElement("th");
+        deviceTypeTh.innerText = "Device Type";
+        headingRow.appendChild(deviceTypeTh);
 
-    /* Center the main content and add some padding */
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+        let deviceManufacturerTh = document.createElement("th");
+        deviceManufacturerTh.innerText = "Device Manufacturer";
+        headingRow.appendChild(deviceManufacturerTh);
 
-    /* Style the page header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
+        let deviceModelTh = document.createElement("th");
+        deviceModelTh.innerText = "Device Model";
+        headingRow.appendChild(deviceModelTh);
 
-    .header h1 {
-      font-size: 36px;
-      font-weight: bold;
-      color: #333;
-    }
+        let orderDescriptionTh = document.createElement("th");
+        orderDescriptionTh.innerText = "Order Description";
+        headingRow.appendChild(orderDescriptionTh);
 
-    /* Style the navbar */
-    .navbar {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-bottom: 20px;
-    }
+        let orderStatusTh = document.createElement("th");
+        orderStatusTh.innerText = "Order Status";
+        headingRow.appendChild(orderStatusTh);
 
-    .navbar button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-left: 10px;
-    }
+        let statusChangeTh = document.createElement("th");
+        statusChangeTh.innerText = "Status Change";
+        headingRow.appendChild(statusChangeTh);
+      }
 
-    .navbar button:hover {
-      background-color: #0062cc;
-    }
+      function addRow(orderId, deviceType, deviceManufacturer, deviceModel, orderDescription, orderStatus){
+        let table = ordersTable;
 
-    /* Style the button to add new chats */
-    .add-chat-button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+        let newRow = table.insertRow();
+        newRow.setAttribute('data-id', orderId);
 
-    .add-chat-button:hover {
-      background-color: #0062cc;
-    }
+        let idCell = newRow.insertCell();
+        idCell.appendChild(document.createTextNode(orderId));
 
-    /* Style the button to switch between chats */
-    .chat-button {
-      padding: 10px 20px;
-      background-color: #fff;
-      color: #333;
-      border: none;
-      border-radius: 5px;
-      margin-right: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+        let deviceTypeCell = newRow.insertCell();
+        deviceTypeCell.appendChild(document.createTextNode(deviceType));
 
-    .chat-button.active {
-      background-color: #007bff;
-      color: #fff;
-    }
+        let manufacturerCell = newRow.insertCell();
+        manufacturerCell.appendChild(document.createTextNode(deviceManufacturer));
 
-    .chat-button:hover {
-      background-color: #e6e6e6;
-    }
+        let modelCell = newRow.insertCell();
+        modelCell.appendChild(document.createTextNode(deviceModel));
 
-    /* Style the chat section */
-    .chat-section {
-      width: 100%;
-      height: 500px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 10px;
-      overflow-y: scroll;
-    }
+        let descriptionCell = newRow.insertCell();
+        descriptionCell.appendChild(document.createTextNode(orderDescription));
 
-    /* Style the chat bubbles for sent and received messages */
-    .chat-bubble {
-      display: inline-block;
-      padding: 10px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-    }
+        let statusCell = newRow.insertCell();
+        statusCell.appendChild(document.createTextNode(orderStatus));
 
-    .sent {
-      background-color: #dcf8c6;
-      float: right;
-    }
+        let actionCell = newRow.insertCell();
+        let button = document.createElement('button');
+        button.textContent = 'Finish';
+        button.addEventListener('click', function() {
+          finishRow(orderId);
+        });
+        actionCell.appendChild(button);
+      }
 
-    .received {
-      background-color: #fff;
-      float: left;
-    }
-  </style>
-</head>
-<body onload="initialize()">
-<div class="container">
-  <div class="header">
-    <h1>VCT Chat Webpage</h1>
-    <div class="navbar">
-      <!--<button>Login</button>-->
-      <button onclick="logoutUser()">Logout</button>
+      function loadUnfinishedOrders(){
+        const xhr = new XMLHttpRequest();
+
+        xhr.open('GET', '/api/v1/orders/get_unfinished_orders', false);
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            ordersTable.innerHTML = "";
+            addHeadingRow();
+
+            this.responseText.split("-;-;-").forEach(order => {
+              let orderSegments = order.split("---");
+              let orderId = orderSegments[0];
+              let deviceType = orderSegments[1];
+              let deviceManufacturer = orderSegments[2];
+              let deviceModel = orderSegments[3];
+              let orderDescription = orderSegments[4];
+              let orderStatus = orderSegments[5];
+
+              addRow(orderId, deviceType, deviceManufacturer, deviceModel, orderDescription, orderStatus);
+            });
+          }else if(this.status == 500){
+            window.alert("ERR: " + this.responseText);
+          }
+        };
+
+        xhr.send();
+      }
+
+      function loadAllOrders(){
+        const xhr = new XMLHttpRequest();
+
+        xhr.open('GET', '/api/v1/orders/getAll', false);
+        xhr.onload = function(){
+          if(this.readyState == 4 && this.status == 200){
+            ordersTable.innerHTML = "";
+            addHeadingRow();
+
+            this.responseText.split("-;-;-").forEach(order => {
+              let orderSegments = order.split("---");
+              let orderId = orderSegments[0];
+              let deviceType = orderSegments[1];
+              let deviceManufacturer = orderSegments[2];
+              let deviceModel = orderSegments[3];
+              let orderDescription = orderSegments[4];
+              let orderStatus = orderSegments[5];
+
+              addRow(orderId, deviceType, deviceManufacturer, deviceModel, orderDescription, orderStatus);
+            });
+          }else if(this.status == 500){
+            window.alert("ERR: " + this.responseText);
+          }
+        };
+
+        xhr.send();
+      }
+    </script>
+
+    <style>
+      body{
+        background-color: #f2f2f2;
+      }
+
+      #table-div{
+        position: absolute;
+        width: 80%;
+        height: 40%;
+        left: 10%;
+        top: 5%;
+        overflow-y: scroll;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        background-color: beige;
+      }
+
+      #control-panel{
+        position: absolute;
+        width: 80%;
+        height: 40%;
+        left: 10%;
+        bottom: 5%;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        background-color: beige;
+      }
+
+      #order-table{
+        border: 1px solid darkgray;
+        background: white;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      button {
+        padding: 5px 10px;
+        border-radius: 5px;
+        text-align: center;
+        background-color: #4CAF50;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      button:hover{
+        background-color: #6CCF70;
+        text-shadow: 1px 1px 1px black;
+      }
+
+      #load-unfinished-orders{
+        position: absolute;
+        width: 20vw;
+        height: 4vh;
+        top: 2vh;
+        left: 2vh;
+      }
+
+      #load-all-orders{
+        position: absolute;
+        width: 20vw;
+        height: 4vh;
+        top: 8vh;
+        left: 2vh;
+      }
+
+      #remove-orders{
+        position: absolute;
+        width: 20vw;
+        height: 4vh;
+        top: 14vh;
+        left: 2vh;
+      }
+    </style>
+  </head>
+  <body onload="initialize()">
+    <div id="table-div">
+      <table id="order-table"></table>
     </div>
-  </div>
-  <div>
-    <!-- Create buttons for each person you want to chat with -->
-    <button class="chat-button">Person 1</button>
-    <button class="chat-button">Person 2</button>
-    <button class="chat-button">Person 3</button>
-    <button class="add-chat-button">Add Chat</button>
-  </div>
-  <div class="chat-section">
-    <!-- Display the chat messages for the currently active chat -->
-    <div id="person1-chat" class="chat active-chat">
-      <div class="chat-bubble sent">Hi there!</div>
-      <div class="chat-bubble received">Hey, what's up?</div>
+
+    <div id="control-panel">
+      <button id="load-unfinished-orders" onclick="loadUnfinishedOrders()">Load unfinished orders</button>
+      <button id="load-all-orders" onclick="loadAllOrders()">Load all orders</button>
+      <button id="remove-orders" onclick="removeOrders()">Remove orders</button>
     </div>
-    <div id="person2-chat" class="chat">
-      <div class="chat-bubble sent">Hello!</div>
-      <div class="chat-bubble received">Not much, how about you?</div>
-    </div>
-    <div id="person3-chat" class="chat">
-      <div class="chat-bubble sent">Hey!</div>
-      <div class="chat-bubble received">Hey, long time no see!</div>
-      <div class="chat-bubble sent">Yeah, it's been a while.</div>
-    </div>
-  </div>
-</div>
-</body>
+  </body>
 </html>

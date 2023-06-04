@@ -1,15 +1,16 @@
 package org.elsys_bg.ElectronicsRepair.service;
 
+import org.elsys_bg.ElectronicsRepair.controller.resources.DeviceTypeResource;
 import org.elsys_bg.ElectronicsRepair.entity.DeviceType;
 
 import java.util.List;
 
 public interface DeviceTypeService{
-    List<DeviceType> findAll();
+    List<DeviceTypeResource> findAll();
 
-    DeviceType save(DeviceType deviceType);
+    DeviceTypeResource save(DeviceType deviceType);
 
     void delete(DeviceType deviceType);
 
-    void updateDeviceType(DeviceType deviceType);
+    DeviceTypeResource updateDeviceType(DeviceType deviceType);
 }

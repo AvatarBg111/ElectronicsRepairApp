@@ -1,15 +1,16 @@
 package org.elsys_bg.ElectronicsRepair.service;
 
+import org.elsys_bg.ElectronicsRepair.controller.resources.AdminResource;
 import org.elsys_bg.ElectronicsRepair.entity.Admin;
 
 import java.util.List;
 
 public interface AdminService{
-    List<Admin> findAll();
+    List<AdminResource> findAll();
 
-    Admin save(Admin admin);
+    AdminResource save(Admin admin);
 
     void delete(Admin admin);
 
-    void updateAdmin(Admin admin);
+    AdminResource updateAdmin(Admin admin);
 }

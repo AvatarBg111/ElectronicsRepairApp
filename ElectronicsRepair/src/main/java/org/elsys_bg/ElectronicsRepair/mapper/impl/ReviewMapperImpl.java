@@ -2,25 +2,42 @@ package org.elsys_bg.ElectronicsRepair.mapper.impl;
 
 import org.elsys_bg.ElectronicsRepair.controller.resources.ReviewResource;
 import org.elsys_bg.ElectronicsRepair.entity.Review;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.elsys_bg.ElectronicsRepair.mapper.ReviewMapper;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Mapper
-public interface ReviewMapperImpl {
-    ReviewMapperImpl MAPPER = Mappers.getMapper(ReviewMapperImpl.class);
+@Component
+public class ReviewMapperImpl implements ReviewMapper{
+    @Override
+    public Review fromReviewResource(ReviewResource reviewResource){
+        if(reviewResource == null){
+            return null;
+        }
+        Review review = new Review();
+        review.setId(reviewResource.getId());
+        review.setClient(reviewResource.getClient());
+        review.setReviewText(reviewResource.getReviewText());
+        return review;
+    }
 
-    @Mapping(target = "id", source = "reviewResource.id")
-    @Mapping(target = "client", source = "reviewResource.client")
-    @Mapping(target = "reviewText", source = "reviewResource.reviewText")
-    Review fromReviewResource(ReviewResource reviewResource);
+    @Override
+    public ReviewResource toReviewResource(Review review){
+        if(review == null){
+            return null;
+        }
+        ReviewResource reviewResource = new ReviewResource();
+        reviewResource.setId(review.getId());
+        reviewResource.setClient(review.getClient());
+        reviewResource.setReviewText(review.getReviewText());
+        return reviewResource;
+    }
 
-    @Mapping(target = "id", source = "review.id")
-    @Mapping(target = "client", source = "review.client")
-    @Mapping(target = "reviewText", source = "review.reviewText")
-    ReviewResource toReviewResource(Review review);
-
-    List<ReviewResource> toReviewResources(List<Review> reviews);
+    @Override
+    public List<ReviewResource> toReviewResources(List<Review> reviews){
+        return reviews.stream()
+                .map(this::toReviewResource)
+                .collect(Collectors.toList());
+    }
 }

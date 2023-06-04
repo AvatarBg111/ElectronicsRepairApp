@@ -11,8 +11,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ClientContactRepository extends JpaRepository<ClientContact, Long>{
-    ClientContact save(ClientContact clientContact);
-
     @Transactional
     @Modifying
     @Query("DELETE FROM ClientContact u WHERE u.client = :client")

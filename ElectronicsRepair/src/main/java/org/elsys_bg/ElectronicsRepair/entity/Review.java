@@ -2,6 +2,7 @@ package org.elsys_bg.ElectronicsRepair.entity;
 
 import lombok.Data;
 import jakarta.persistence.*;
+import org.springframework.data.domain.Auditable;
 
 @Entity
 @Table(name = "Reviews")

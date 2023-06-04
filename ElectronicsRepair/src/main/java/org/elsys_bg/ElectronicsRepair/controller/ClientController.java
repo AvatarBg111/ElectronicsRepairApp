@@ -3,7 +3,8 @@ package org.elsys_bg.ElectronicsRepair.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.elsys_bg.ElectronicsRepair.entity.Client;
+import org.elsys_bg.ElectronicsRepair.controller.resources.ClientResource;
+import org.elsys_bg.ElectronicsRepair.mapper.ClientMapper;
 import org.elsys_bg.ElectronicsRepair.miscellaneous.CustomFileReader;
 import org.elsys_bg.ElectronicsRepair.service.impl.ClientContactServiceImpl;
 import org.elsys_bg.ElectronicsRepair.service.impl.ClientServiceImpl;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class ClientController{
     private final ClientServiceImpl clientService;
     private final ClientContactServiceImpl clientContactsService;
+    private final ClientMapper clientMapper;
 
     @GetMapping("/getAll")
     public ResponseEntity<String> getAllClients(){
@@ -83,11 +85,11 @@ public class ClientController{
             String password = jsonNode.get("pass").asText();
             String email = jsonNode.get("email").asText();
             String tel = jsonNode.get("tel").asText();
-            Client client;
+            ClientResource client;
 
             client = clientService.signUp(username, password);
             if(client != null){
-                if(clientContactsService.addContact(client, email, tel) != null){
+                if(clientContactsService.addContact(clientMapper.fromClientResource(client), email, tel) != null){
                     return new ResponseEntity<>("USER_SIGNED_UP", HttpStatus.OK);
                 }else{
                     clientService.deleteClientByName(client.getName());
@@ -114,7 +116,7 @@ public class ClientController{
             System.out.println(e);
             return new ResponseEntity<>("Error 500: Internal server error", headers, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        htmlContent = htmlContent.replace("__USERNAME__", username);
+        htmlContent = htmlContent.replace("__CLIENT_NAME__", username);
 
         return new ResponseEntity<>(htmlContent, headers, HttpStatus.OK);
     }

@@ -23,13 +23,13 @@ public class ClientContactServiceImpl implements ClientContactService{
     }
 
     @Override
-    public List<ClientContact> findAll(){
-        return clientContactRepository.findAll();
+    public List<ClientContactResource> findAll(){
+        return clientContactMapper.toClientContactResources(clientContactRepository.findAll());
     }
 
     @Override
-    public ClientContact save(ClientContact clientContact){
-        return clientContactRepository.save(clientContact);
+    public ClientContactResource save(ClientContact clientContact){
+        return clientContactMapper.toClientContactResource(clientContactRepository.save(clientContact));
     }
 
     @Override
@@ -38,8 +38,9 @@ public class ClientContactServiceImpl implements ClientContactService{
     }
 
     @Override
-    public void updateClientContact(ClientContact contact) throws NoSuchElementException {
+    public ClientContactResource updateClientContact(ClientContact contact) throws NoSuchElementException {
         ClientContact existingContact = clientContactRepository.findById(Long.valueOf(contact.getId())).orElse(null);
+
         if(existingContact != null){
             existingContact.setTel(contact.getTel());
             existingContact.setEmail(contact.getEmail());
@@ -48,17 +49,19 @@ public class ClientContactServiceImpl implements ClientContactService{
         }else{
             throw new NoSuchElementException("ERR: Client contact with ID " + contact.getId() + " does not exist.");
         }
+
+        return clientContactMapper.toClientContactResource(existingContact);
     }
 
     public void deleteClientContactByClient(Client client){
         clientContactRepository.deleteByClient(client);
     }
 
-    public ClientContact addContact(Client client, String email, String tel){
+    public ClientContactResource addContact(Client client, String email, String tel){
         ClientContactResource newClientContact = new ClientContactResource();
         newClientContact.setClient(client);
         newClientContact.setEmail(email);
         newClientContact.setTel(tel);
-        return clientContactRepository.save(clientContactMapper.fromClientContactResource(newClientContact));
+        return clientContactMapper.toClientContactResource(clientContactRepository.save(clientContactMapper.fromClientContactResource(newClientContact)));
     }
 }

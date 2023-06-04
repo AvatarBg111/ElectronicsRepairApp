@@ -40,8 +40,6 @@ public class MainController{
             if(!role.equals("client") && !role.equals("worker") && !role.equals("admin")){
                 throw new RuntimeException("ERR: Given user role does not exist");
             }
-
-            htmlContent = htmlContent.replace("__USER_ROLE__", role);
         }catch(Exception e){
             System.out.println(e);
 
@@ -51,6 +49,7 @@ public class MainController{
                 return new ResponseEntity<>("Error 500: Internal server error", headers, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
+        htmlContent = htmlContent.replace("__USER_ROLE__", role);
 
         return new ResponseEntity<>(htmlContent, headers, HttpStatus.OK);
     }
