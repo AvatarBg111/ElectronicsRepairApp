@@ -23,5 +23,5 @@ public interface OrderStatusMapper{
 
     List<OrderStatusResource> toOrderStatusResources(List<OrderStatus> orderStatuses);
 
-    OrderStatus fromOrderStatusProjection(OrderStatusProjection orderStatusProjection);
+    OrderStatusResource fromOrderStatusProjection(OrderStatusProjection orderStatusProjection);
 }

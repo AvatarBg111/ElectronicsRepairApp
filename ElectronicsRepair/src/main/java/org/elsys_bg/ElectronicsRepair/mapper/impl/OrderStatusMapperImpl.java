@@ -53,8 +53,8 @@ public class OrderStatusMapperImpl implements OrderStatusMapper{
     }
 
     @Override
-    public OrderStatus fromOrderStatusProjection(OrderStatusProjection orderStatusProjection){
-        OrderStatus orderStatus = new OrderStatus();
+    public OrderStatusResource fromOrderStatusProjection(OrderStatusProjection orderStatusProjection){
+        OrderStatusResource orderStatus = new OrderStatusResource();
         orderStatus.setId(orderStatusProjection.getId());
         orderStatus.setOrderStatus(orderStatusProjection.getOrderStatus());
         return orderStatus;

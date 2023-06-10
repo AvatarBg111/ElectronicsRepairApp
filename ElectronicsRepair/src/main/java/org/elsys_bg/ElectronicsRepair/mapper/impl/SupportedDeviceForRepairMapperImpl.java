@@ -1,10 +1,10 @@
 package org.elsys_bg.ElectronicsRepair.mapper.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.elsys_bg.ElectronicsRepair.controller.resources.SupportedDeviceForRepairResource;
-import org.elsys_bg.ElectronicsRepair.entity.Client;
 import org.elsys_bg.ElectronicsRepair.entity.SupportedDeviceForRepair;
+import org.elsys_bg.ElectronicsRepair.mapper.DeviceTypeMapper;
 import org.elsys_bg.ElectronicsRepair.mapper.SupportedDeviceForRepairMapper;
-import org.elsys_bg.ElectronicsRepair.miscellaneous.ClientProjection;
 import org.elsys_bg.ElectronicsRepair.miscellaneous.SupportedDeviceForRepairProjection;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class SupportedDeviceForRepairMapperImpl implements SupportedDeviceForRepairMapper{
+    private final DeviceTypeMapper deviceTypeMapper;
+
     @Override
     public SupportedDeviceForRepair fromSupportedDeviceForRepairResource(SupportedDeviceForRepairResource supportedDeviceForRepairResource){
         if(supportedDeviceForRepairResource == null){
@@ -22,7 +25,7 @@ public class SupportedDeviceForRepairMapperImpl implements SupportedDeviceForRep
 
         SupportedDeviceForRepair supportedDeviceForRepair = new SupportedDeviceForRepair();
         supportedDeviceForRepair.setId(supportedDeviceForRepairResource.getId());
-        supportedDeviceForRepair.setDeviceType(supportedDeviceForRepairResource.getDeviceType());
+        supportedDeviceForRepair.setDeviceType(deviceTypeMapper.fromDeviceTypeResource(supportedDeviceForRepairResource.getDeviceType()));
         supportedDeviceForRepair.setManufacturer(supportedDeviceForRepairResource.getManufacturer());
 
         return supportedDeviceForRepair;
@@ -36,7 +39,7 @@ public class SupportedDeviceForRepairMapperImpl implements SupportedDeviceForRep
 
         SupportedDeviceForRepairResource supportedDeviceForRepairResource = new SupportedDeviceForRepairResource();
         supportedDeviceForRepairResource.setId(supportedDeviceForRepair.getId());
-        supportedDeviceForRepairResource.setDeviceType(supportedDeviceForRepair.getDeviceType());
+        supportedDeviceForRepairResource.setDeviceType(deviceTypeMapper.toDeviceTypeResource(supportedDeviceForRepair.getDeviceType()));
         supportedDeviceForRepairResource.setManufacturer(supportedDeviceForRepair.getManufacturer());
 
         return supportedDeviceForRepairResource;
@@ -57,11 +60,11 @@ public class SupportedDeviceForRepairMapperImpl implements SupportedDeviceForRep
     }
 
     @Override
-    public SupportedDeviceForRepair fromSupportedDeviceForRepairProjection(SupportedDeviceForRepairProjection supportedDeviceForRepairProjection){
-        SupportedDeviceForRepair supportedDeviceForRepair = new SupportedDeviceForRepair();
+    public SupportedDeviceForRepairResource fromSupportedDeviceForRepairProjection(SupportedDeviceForRepairProjection supportedDeviceForRepairProjection){
+        SupportedDeviceForRepairResource supportedDeviceForRepair = new SupportedDeviceForRepairResource();
         supportedDeviceForRepair.setId(supportedDeviceForRepairProjection.getId());
         supportedDeviceForRepair.setManufacturer(supportedDeviceForRepairProjection.getManufacturer());
-        supportedDeviceForRepair.setDeviceType(DeviceTypeMapperImpl.MAPPER.fromDeviceTypeProjection(supportedDeviceForRepairProjection.getDeviceType()));
+        supportedDeviceForRepair.setDeviceType(deviceTypeMapper.fromDeviceTypeProjection(supportedDeviceForRepairProjection.getDeviceType()));
         return supportedDeviceForRepair;
     }
 }

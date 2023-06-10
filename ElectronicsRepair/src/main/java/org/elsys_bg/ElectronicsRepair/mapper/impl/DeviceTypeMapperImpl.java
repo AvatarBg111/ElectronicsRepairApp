@@ -53,8 +53,8 @@ public class DeviceTypeMapperImpl implements DeviceTypeMapper{
     }
 
     @Override
-    public DeviceType fromDeviceTypeProjection(DeviceTypeProjection deviceTypeProjection){
-        DeviceType deviceType = new DeviceType();
+    public DeviceTypeResource fromDeviceTypeProjection(DeviceTypeProjection deviceTypeProjection){
+        DeviceTypeResource deviceType = new DeviceTypeResource();
         deviceType.setId(deviceTypeProjection.getId());
         deviceType.setDeviceType(deviceTypeProjection.getDeviceType());
         return deviceType;

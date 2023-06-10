@@ -55,8 +55,8 @@ public class ClientMapperImpl implements ClientMapper{
     }
 
     @Override
-    public Client fromClientProjection(ClientProjection clientProjection){
-        Client client = new Client();
+    public ClientResource fromClientProjection(ClientProjection clientProjection){
+        ClientResource client = new ClientResource();
         client.setId(clientProjection.getId());
         client.setName(clientProjection.getName());
         client.setPassword(clientProjection.getPassword());

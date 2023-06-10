@@ -25,5 +25,5 @@ public interface SupportedDeviceForRepairMapper{
 
     List<SupportedDeviceForRepairResource> toSupportedDeviceForRepairResources(List<SupportedDeviceForRepair> supportedDevicesForRepair);
 
-    SupportedDeviceForRepair fromSupportedDeviceForRepairProjection(SupportedDeviceForRepairProjection supportedDeviceForRepairProjection);
+    SupportedDeviceForRepairResource fromSupportedDeviceForRepairProjection(SupportedDeviceForRepairProjection supportedDeviceForRepairProjection);
 }

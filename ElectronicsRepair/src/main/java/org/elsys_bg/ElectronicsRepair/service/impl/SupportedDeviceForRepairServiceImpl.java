@@ -5,6 +5,7 @@ import org.elsys_bg.ElectronicsRepair.controller.resources.SupportedDeviceForRep
 import org.elsys_bg.ElectronicsRepair.controller.resources.WorkerResource;
 import org.elsys_bg.ElectronicsRepair.entity.DeviceType;
 import org.elsys_bg.ElectronicsRepair.entity.SupportedDeviceForRepair;
+import org.elsys_bg.ElectronicsRepair.mapper.DeviceTypeMapper;
 import org.elsys_bg.ElectronicsRepair.mapper.SupportedDeviceForRepairMapper;
 import org.elsys_bg.ElectronicsRepair.mapper.impl.SupportedDeviceForRepairMapperImpl;
 import org.elsys_bg.ElectronicsRepair.miscellaneous.SupportedDevicesProjection;
@@ -20,6 +21,7 @@ import java.util.NoSuchElementException;
 public class SupportedDeviceForRepairServiceImpl implements SupportedDeviceForRepairService{
     public final SupportedDeviceForRepairRepository supportedDeviceForRepairRepository;
     public final SupportedDeviceForRepairMapper supportedDeviceForRepairMapper;
+    public final DeviceTypeMapper deviceTypeMapper;
 
     public SupportedDeviceForRepairResource getById(Long supportedDeviceForRepairId){
         return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResource(supportedDeviceForRepairRepository.getById(supportedDeviceForRepairId));
@@ -69,7 +71,7 @@ public class SupportedDeviceForRepairServiceImpl implements SupportedDeviceForRe
 
     public SupportedDeviceForRepairResource addSupportedDevice(String deviceManufacturer, DeviceType deviceType){
         SupportedDeviceForRepairResource newSupportedDevice = new SupportedDeviceForRepairResource();
-        newSupportedDevice.setDeviceType(deviceType);
+        newSupportedDevice.setDeviceType(deviceTypeMapper.toDeviceTypeResource(deviceType));
         newSupportedDevice.setManufacturer(deviceManufacturer);
         return supportedDeviceForRepairMapper.toSupportedDeviceForRepairResource(supportedDeviceForRepairRepository.save(supportedDeviceForRepairMapper.fromSupportedDeviceForRepairResource(newSupportedDevice)));
     }

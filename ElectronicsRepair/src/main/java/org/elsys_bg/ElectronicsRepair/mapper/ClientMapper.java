@@ -25,5 +25,5 @@ public interface ClientMapper{
 
     List<ClientResource> toClientResources(List<Client> clients);
 
-    Client fromClientProjection(ClientProjection clientProjection);
+    ClientResource fromClientProjection(ClientProjection clientProjection);
 }

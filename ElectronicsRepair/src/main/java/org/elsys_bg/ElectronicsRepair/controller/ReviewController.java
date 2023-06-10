@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.elsys_bg.ElectronicsRepair.controller.resources.*;
-import org.elsys_bg.ElectronicsRepair.entity.DeviceType;
-import org.elsys_bg.ElectronicsRepair.mapper.ClientMapper;
 import org.elsys_bg.ElectronicsRepair.mapper.ReviewMapper;
 import org.elsys_bg.ElectronicsRepair.service.impl.ClientServiceImpl;
 import org.elsys_bg.ElectronicsRepair.service.impl.ReviewServiceImpl;
@@ -23,7 +21,6 @@ public class ReviewController{
     private final ReviewServiceImpl reviewService;
     private final ReviewMapper reviewMapper;
     private final ClientServiceImpl clientService;
-    private final ClientMapper clientMapper;
 
     @GetMapping("/getAll")
     public ResponseEntity<String> getAllReview(){
@@ -60,7 +57,7 @@ public class ReviewController{
             }
 
             ReviewResource reviewResource = new ReviewResource();
-            reviewResource.setClient(clientMapper.fromClientResource(client));
+            reviewResource.setClient(client);
             reviewResource.setReviewText(reviewText);
 
             ReviewResource review = reviewService.save(reviewMapper.fromReviewResource(reviewResource));

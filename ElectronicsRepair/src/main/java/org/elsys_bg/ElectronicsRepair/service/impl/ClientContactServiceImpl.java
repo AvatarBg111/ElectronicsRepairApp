@@ -5,6 +5,7 @@ import org.elsys_bg.ElectronicsRepair.controller.resources.ClientContactResource
 import org.elsys_bg.ElectronicsRepair.entity.Client;
 import org.elsys_bg.ElectronicsRepair.entity.ClientContact;
 import org.elsys_bg.ElectronicsRepair.mapper.ClientContactMapper;
+import org.elsys_bg.ElectronicsRepair.mapper.ClientMapper;
 import org.elsys_bg.ElectronicsRepair.repository.ClientContactRepository;
 import org.elsys_bg.ElectronicsRepair.service.ClientContactService;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.NoSuchElementException;
 public class ClientContactServiceImpl implements ClientContactService{
     private final ClientContactRepository clientContactRepository;
     private final ClientContactMapper clientContactMapper;
+    private final ClientMapper clientMapper;
 
     public ClientContact getById(Long clientContactId){
         return clientContactRepository.getById(clientContactId);
@@ -59,7 +61,7 @@ public class ClientContactServiceImpl implements ClientContactService{
 
     public ClientContactResource addContact(Client client, String email, String tel){
         ClientContactResource newClientContact = new ClientContactResource();
-        newClientContact.setClient(client);
+        newClientContact.setClient(clientMapper.toClientResource(client));
         newClientContact.setEmail(email);
         newClientContact.setTel(tel);
         return clientContactMapper.toClientContactResource(clientContactRepository.save(clientContactMapper.fromClientContactResource(newClientContact)));

@@ -106,7 +106,7 @@ public class WorkerController{
 
         headers.setContentType(MediaType.TEXT_HTML);
         try {
-            htmlContent = CustomFileReader.readFile(System.getProperty("user.dir") + "/src/main/java/org/elsys_bg/ElectronicsRepair/htmlPages/worker_homepage.html");
+            htmlContent = CustomFileReader.readFile(System.getProperty("user.dir") + "/src/main/java/org/elsys_bg/ElectronicsRepair/controller/resources/static/worker_homepage.html");
         } catch (Exception e) {
             System.out.println(e);
             return new ResponseEntity<>("Error 500: Internal server error", headers, HttpStatus.INTERNAL_SERVER_ERROR);

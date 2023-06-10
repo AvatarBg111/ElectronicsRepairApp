@@ -8,10 +8,7 @@ import org.elsys_bg.ElectronicsRepair.controller.resources.OrderResource;
 import org.elsys_bg.ElectronicsRepair.controller.resources.OrderStatusResource;
 import org.elsys_bg.ElectronicsRepair.controller.resources.SupportedDeviceForRepairResource;
 import org.elsys_bg.ElectronicsRepair.entity.*;
-import org.elsys_bg.ElectronicsRepair.mapper.ClientMapper;
 import org.elsys_bg.ElectronicsRepair.mapper.OrderMapper;
-import org.elsys_bg.ElectronicsRepair.mapper.OrderStatusMapper;
-import org.elsys_bg.ElectronicsRepair.mapper.SupportedDeviceForRepairMapper;
 import org.elsys_bg.ElectronicsRepair.service.impl.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +24,9 @@ public class OrderController{
     private final OrderServiceImpl orderService;
     private final OrderMapper orderMapper;
     private final OrderStatusServiceImpl orderStatusService;
-    private final OrderStatusMapper orderStatusMapper;
     private final ClientServiceImpl clientService;
-    private final ClientMapper clientMapper;
     private final DeviceTypeServiceImpl deviceTypeService;
     private final SupportedDeviceForRepairServiceImpl supportedDeviceForRepairService;
-    private final SupportedDeviceForRepairMapper supportedDeviceForRepairMapper;
 
     @GetMapping("/getAll")
     public ResponseEntity<String> getAllOrders(){
@@ -108,9 +102,9 @@ public class OrderController{
             }
 
             OrderResource orderResource = new OrderResource();
-            orderResource.setClient(clientMapper.fromClientResource(client));
-            orderResource.setOrderStatus(orderStatusMapper.fromOrderStatusResource(orderStatus));
-            orderResource.setSupportedDeviceType(supportedDeviceForRepairMapper.fromSupportedDeviceForRepairResource(supportedDeviceForRepair));
+            orderResource.setClient(client);
+            orderResource.setOrderStatus(orderStatus);
+            orderResource.setSupportedDeviceType(supportedDeviceForRepair);
             orderResource.setModel(deviceModel);
             orderResource.setDescription(orderDescription);
 

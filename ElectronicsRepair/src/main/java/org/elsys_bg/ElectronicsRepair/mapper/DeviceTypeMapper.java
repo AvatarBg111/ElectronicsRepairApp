@@ -23,5 +23,5 @@ public interface DeviceTypeMapper{
 
     List<DeviceTypeResource> toDeviceTypeResources(List<DeviceType> deviceTypes);
 
-    DeviceType fromDeviceTypeProjection(DeviceTypeProjection deviceType);
+    DeviceTypeResource fromDeviceTypeProjection(DeviceTypeProjection deviceType);
 }

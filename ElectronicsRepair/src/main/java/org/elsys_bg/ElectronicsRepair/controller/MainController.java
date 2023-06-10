@@ -19,7 +19,7 @@ public class MainController{
 
         headers.setContentType(MediaType.TEXT_HTML);
         try{
-            htmlContent = CustomFileReader.readFile(System.getProperty("user.dir") + "/src/main/java/org/elsys_bg/ElectronicsRepair/htmlPages/main.html");
+            htmlContent = CustomFileReader.readFile(System.getProperty("user.dir") + "/src/main/java/org/elsys_bg/ElectronicsRepair/controller/resources/static/main.html");
         }catch(Exception e){
             System.out.println(e);
             return new ResponseEntity<>("Error 500: Internal server error", headers, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -35,7 +35,7 @@ public class MainController{
 
         headers.setContentType(MediaType.TEXT_HTML);
         try{
-            htmlContent = CustomFileReader.readFile(System.getProperty("user.dir") + "/src/main/java/org/elsys_bg/ElectronicsRepair/htmlPages/signin.html");
+            htmlContent = CustomFileReader.readFile(System.getProperty("user.dir") + "/src/main/java/org/elsys_bg/ElectronicsRepair/controller/resources/static/signin.html");
 
             if(!role.equals("client") && !role.equals("worker") && !role.equals("admin")){
                 throw new RuntimeException("ERR: Given user role does not exist");

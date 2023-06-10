@@ -5,6 +5,7 @@ import org.elsys_bg.ElectronicsRepair.controller.resources.WorkerResource;
 import org.elsys_bg.ElectronicsRepair.entity.Worker;
 import org.elsys_bg.ElectronicsRepair.entity.WorkerPost;
 import org.elsys_bg.ElectronicsRepair.mapper.WorkerMapper;
+import org.elsys_bg.ElectronicsRepair.mapper.WorkerPostMapper;
 import org.elsys_bg.ElectronicsRepair.repository.WorkerPostRepository;
 import org.elsys_bg.ElectronicsRepair.repository.WorkerRepository;
 import org.elsys_bg.ElectronicsRepair.service.WorkerService;
@@ -19,6 +20,7 @@ public class WorkerServiceImpl implements WorkerService{
     public final WorkerRepository workerRepository;
     public final WorkerPostRepository workerPostRepository;
     public final WorkerMapper workerMapper;
+    public final WorkerPostMapper workerPostMapper;
 
     public WorkerResource getById(Long workerId){
         return workerMapper.toWorkerResource(workerRepository.getById(workerId));
@@ -72,7 +74,7 @@ public class WorkerServiceImpl implements WorkerService{
         WorkerResource newWorker = new WorkerResource();
         newWorker.setName(username);
         newWorker.setPassword(password);
-        newWorker.setPost(post);
+        newWorker.setPost(workerPostMapper.toWorkerPostResource(post));
         return workerMapper.toWorkerResource(workerRepository.save(workerMapper.fromWorkerResource(newWorker)));
     }
 }

@@ -1,9 +1,14 @@
 package org.elsys_bg.ElectronicsRepair.mapper.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.elsys_bg.ElectronicsRepair.controller.resources.OrderResource;
 import org.elsys_bg.ElectronicsRepair.entity.Client;
 import org.elsys_bg.ElectronicsRepair.entity.Order;
+import org.elsys_bg.ElectronicsRepair.entity.SupportedDeviceForRepair;
+import org.elsys_bg.ElectronicsRepair.mapper.ClientMapper;
 import org.elsys_bg.ElectronicsRepair.mapper.OrderMapper;
+import org.elsys_bg.ElectronicsRepair.mapper.OrderStatusMapper;
+import org.elsys_bg.ElectronicsRepair.mapper.SupportedDeviceForRepairMapper;
 import org.elsys_bg.ElectronicsRepair.miscellaneous.ClientProjection;
 import org.elsys_bg.ElectronicsRepair.miscellaneous.OrdersProjection;
 import org.mapstruct.Mapper;
@@ -15,7 +20,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class OrderMapperImpl implements OrderMapper{
+    private final ClientMapper clientMapper;
+    private final SupportedDeviceForRepairMapper supportedDeviceMapper;
+    private final OrderStatusMapper orderStatusMapper;
+
     @Override
     public Order fromOrderResource(OrderResource orderResource){
         if(orderResource == null){
@@ -24,11 +34,11 @@ public class OrderMapperImpl implements OrderMapper{
 
         Order order = new Order();
         order.setId(orderResource.getId());
-        order.setClient(orderResource.getClient());
-        order.setSupportedDeviceType(orderResource.getSupportedDeviceType());
+        order.setClient(clientMapper.fromClientResource(orderResource.getClient()));
+        order.setSupportedDeviceType(supportedDeviceMapper.fromSupportedDeviceForRepairResource(orderResource.getSupportedDeviceType()));
         order.setModel(orderResource.getModel());
         order.setDescription(orderResource.getDescription());
-        order.setOrderStatus(orderResource.getOrderStatus());
+        order.setOrderStatus(orderStatusMapper.fromOrderStatusResource(orderResource.getOrderStatus()));
         return order;
     }
 
@@ -40,11 +50,11 @@ public class OrderMapperImpl implements OrderMapper{
 
         OrderResource orderResource = new OrderResource();
         orderResource.setId(order.getId());
-        orderResource.setClient(order.getClient());
-        orderResource.setSupportedDeviceType(order.getSupportedDeviceType());
+        orderResource.setClient(clientMapper.toClientResource(order.getClient()));
+        orderResource.setSupportedDeviceType(supportedDeviceMapper.toSupportedDeviceForRepairResource(order.getSupportedDeviceType()));
         orderResource.setModel(order.getModel());
         orderResource.setDescription(order.getDescription());
-        orderResource.setOrderStatus(order.getOrderStatus());
+        orderResource.setOrderStatus(orderStatusMapper.toOrderStatusResource(order.getOrderStatus()));
         return orderResource;
     }
 
@@ -56,11 +66,11 @@ public class OrderMapperImpl implements OrderMapper{
 
         OrderResource orderResource = new OrderResource();
         orderResource.setId(orderProjection.getId());
-        orderResource.setClient(ClientMapperImpl.MAPPER.fromClientProjection(orderProjection.getClient()));
-        orderResource.setSupportedDeviceType(SupportedDeviceForRepairMapperImpl.MAPPER.fromSupportedDeviceForRepairProjection(orderProjection.getSupportedDeviceType()));
+        orderResource.setClient(clientMapper.fromClientProjection(orderProjection.getClient()));
+        orderResource.setSupportedDeviceType(supportedDeviceMapper.fromSupportedDeviceForRepairProjection(orderProjection.getSupportedDeviceType()));
         orderResource.setModel(orderProjection.getModel());
         orderResource.setDescription(orderProjection.getDescription());
-        orderResource.setOrderStatus(OrderStatusMapperImpl.MAPPER.fromOrderStatusProjection(orderProjection.getOrderStatus()));
+        orderResource.setOrderStatus(orderStatusMapper.fromOrderStatusProjection(orderProjection.getOrderStatus()));
         return orderResource;
     }
 
